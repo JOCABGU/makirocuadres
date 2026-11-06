@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistema Almacén · Andino Corporativo</title>
+<!-- THEME:FONTS -->
+<link id="theme-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<!-- THEME:TOKENS -->
+<style id="theme">
+:root{
+  --font-body:'IBM Plex Sans',system-ui,sans-serif;
+  --font-display:'IBM Plex Sans',system-ui,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+  --display-weight:600;
+  --display-tracking:-.01em;
+  --eyebrow-tracking:.12em;
+
+  --bg:#E4E8ED;
+  --surface:#FCFCFA;
+  --surface-alt:#F3F4F2;
+  --head-bg:#ECEEEF;
+  --border:#D9DDE2;
+  --border-strong:#A9B4C2;
+  --text:#0E1B2C;
+  --text-muted:#4A5668;
+  --text-soft:#76828F;
+
+  --brand:#0B2545;
+  --brand-contrast:#ffffff;
+  --accent:#B5582F;
+  --accent-soft:#F7EBE5;
+  --nav-active-bg:#FCFCFA;
+  --nav-active-text:#0B2545;
+  --sidebar-bg:#0B2545;
+  --sidebar-text:#AEBBCD;
+  --sidebar-strong:#ffffff;
+  --sidebar-muted:#7589A6;
+  --sidebar-line:#1C3A60;
+  --sidebar-hover:#132F55;
+  --sidebar-active:#FCFCFA;
+  --copper:#D9895A;
+  --topbar-bg:#FCFCFA;
+  --topbar-text:#0E1B2C;
+
+  --login-panel-bg:#0B2545;
+  --login-panel-text:#ffffff;
+  --login-panel-accent:#E9A07E;
+
+  --success:#2E6B4F;
+  --success-soft:#EDF6F1;
+  --success-on-dark:#7CC39D;
+  --warning:#A8671A;
+  --warning-soft:#FBF3E4;
+  --danger:#A8322B;
+  --danger-soft:#FBEFEE;
+  --info:#2B5C8F;
+  --info-soft:#EBF1F8;
+
+  --radius-sm:2px;
+  --radius:2px;
+  --radius-lg:2px;
+  --shadow:6px 6px 0 var(--border);
+
+  /* escala 12 / 14 / 16 / 20 / 28 / 40 */
+  --fs-1:12px;--fs-2:14px;--fs-3:16px;--fs-4:20px;--fs-5:28px;--fs-6:40px;
+}
+</style>
+<!-- end tokens -->
+<style id="base">
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-width:320px;min-height:100vh;font-family:var(--font-body);font-size:var(--fs-2);line-height:1.4;color:var(--text);background:var(--bg);font-synthesis:none;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,p,dl,dd,ul{margin:0}
+ul{padding:0;list-style:none}
+.mono,.num{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.number,td.number{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.u{color:var(--text-soft);font-size:var(--fs-1);font-weight:400;margin-left:3px}
+
+/* ===== marca: isotipo hoja con esquina doblada y cumbre; wordmark ACCESO / general ===== */
+.brand{display:flex;align-items:center;gap:11px;color:var(--brand)}
+.brand-logo{display:block;width:24px;height:27px;flex:0 0 auto;color:currentColor}
+.brand-name{display:flex;flex-direction:column;gap:3px;white-space:nowrap}
+.brand-name b{font:700 17px/1 var(--font-display);letter-spacing:-.02em}
+.brand-name i{font:500 10px/1 var(--font-mono);font-style:normal;letter-spacing:.34em;text-transform:uppercase;color:var(--accent);padding-left:1px}
+.side-brand{display:flex;align-items:center;height:62px;padding:0 18px;margin-bottom:14px;border-bottom:1px solid var(--sidebar-line);color:var(--sidebar-strong)}
+.side-brand .brand-name i{color:var(--copper)}
+.side-brand .brand-logo{color:var(--sidebar-strong)}
+
+/* ===== lenguaje de formulario ===== */
+.form-code{display:inline-block;padding:3px 7px;border:1px solid var(--border-strong);color:var(--text-muted);font:500 11px/1.3 var(--font-mono);letter-spacing:.04em;white-space:nowrap}
+.ff-grid{display:grid;border-top:1px solid var(--border-strong);border-left:1px solid var(--border-strong);background:var(--surface)}
+.ff{position:relative;min-width:0;padding:19px 10px 7px;border-right:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong)}
+.ff>label,.ff>em{position:absolute;top:4px;left:7px;font:400 11px/1 var(--font-body);font-style:normal;color:var(--text-soft);white-space:nowrap}
+.ff>strong,.ff>div{display:block;overflow:hidden;font-size:var(--fs-2);font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+.ff .empty{color:var(--text-soft);font-weight:400}
+.ff input,.ff select{display:block;width:100%;height:20px;padding:0;border:0;outline:0;background:transparent;font-size:var(--fs-2);font-weight:600}
+.ff:focus-within{background:var(--accent-soft)}
+.sign-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;margin-top:30px}
+.sign{position:relative;min-width:0;padding-top:20px;border-bottom:1px solid var(--text-muted)}
+.sign small{position:absolute;left:0;top:0;color:var(--text-soft);font-size:11px}
+.sign b{display:block;min-height:22px;overflow:hidden;font-size:var(--fs-2);font-weight:500;text-overflow:ellipsis;white-space:nowrap}
+.stamp{display:inline-block;padding:3px 10px 2px;border:3px double currentColor;border-radius:3px;color:var(--accent);font:700 var(--fs-2)/1.2 var(--font-display);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;transform:rotate(-4deg);opacity:.84;mix-blend-mode:multiply;pointer-events:none}
+.stamp--red{color:var(--danger)}
+.stamp--navy{color:var(--brand)}
+.sign .stamp{position:absolute;right:-4px;top:-16px}
+.cb{display:inline-block;width:14px;height:14px;margin-right:8px;border:1.5px solid var(--text-soft);border-radius:1px;background:var(--surface) center/16px 16px no-repeat;vertical-align:-2px;flex:0 0 auto}
+.cb--ok{border-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M1.5 7.5l3.8 4L13 1.5' fill='none' stroke='%23B5582F' stroke-width='2'/%3E%3C/svg%3E")}
+.cb--done{border-color:var(--brand);background-color:var(--brand);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2.5 7.5l3 3L11.5 4' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E")}
+.cb--no{border-color:var(--danger);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M3 3l8 8M11 3l-8 8' fill='none' stroke='%23A8322B' stroke-width='2'/%3E%3C/svg%3E")}
+.cb--obs{border-color:var(--danger);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 2.5v5.5M7 10.5v1' fill='none' stroke='%23A8322B' stroke-width='2'/%3E%3C/svg%3E")}
+.st-obs,.st-no{color:var(--danger)}
+
+/* ===== vistas ===== */
+.view{display:none}
+.view.is-active{display:block}
+.view-switch{position:fixed;z-index:500;right:12px;bottom:12px;display:flex;background:var(--brand);font-family:var(--font-mono)}
+.view-switch button{padding:8px 12px;border:0;border-radius:0;color:color-mix(in srgb,var(--brand-contrast) 68%,transparent);background:transparent;font-size:11px;font-weight:500;letter-spacing:.04em;text-transform:uppercase}
+.view-switch button:hover{color:var(--brand-contrast)}
+.view-switch button.is-active{color:var(--brand);background:var(--brand-contrast)}
+
+/* ===== topbar / shell ===== */
+.dashboard-page,.warehouse-page{min-height:100vh;background:var(--bg)}
+.topbar{height:62px;display:flex;align-items:center;gap:18px;padding:0 22px;border-bottom:1px solid var(--border-strong);background:var(--topbar-bg);color:var(--topbar-text);position:relative;z-index:5;min-width:0}
+.crumbs{display:flex;align-items:center;gap:8px;min-width:0;margin-right:auto;color:var(--text-soft);font-size:var(--fs-2);white-space:nowrap;overflow:hidden}
+.crumbs i{font-style:normal;color:var(--border-strong)}
+.crumbs strong{color:var(--text);font-weight:600}
+.top-search{display:flex;align-items:center;gap:7px;width:250px;height:32px;padding:0 9px;border-bottom:1px solid var(--border-strong)}
+.top-search:focus-within{border-bottom-color:var(--accent)}
+.top-search>span{color:var(--text-soft);font-size:var(--fs-2);line-height:1}
+.top-search input{min-width:0;width:100%;height:30px;border:0;outline:0;background:transparent;font-size:var(--fs-2)}
+.topbar-user{display:flex;align-items:center;gap:14px;flex:0 0 auto}
+.topbar-user .who{display:flex;flex-direction:column;line-height:1.25;text-align:right}
+.topbar-user strong{font-size:var(--fs-2);font-weight:600}
+.topbar-user .who span{color:var(--text-soft);font-size:var(--fs-1)}
+.topbar-user button.logout{height:30px;padding:0 4px;border:0;border-bottom:1px solid var(--border-strong);color:var(--text-muted);background:transparent;font-size:var(--fs-1);font-weight:500}
+.topbar-user button.logout:hover{color:var(--accent);border-bottom-color:var(--accent)}
+.mobile-menu{display:none}
+
+/* ===== separadores de archivador (navegacion lateral) ===== */
+.nav-item,.module-btn{display:flex;align-items:center;gap:12px;width:calc(100% - 18px);min-height:42px;margin:0 0 4px 12px;padding:0 12px 0 10px;border:0;border-radius:7px 0 0 7px;color:var(--sidebar-text);background:var(--sidebar-hover);font-size:var(--fs-2);text-align:left;transition:background .12s,color .12s}
+.nav-item:hover,.module-btn:not(.active):hover{color:var(--sidebar-strong);background:#173761}
+.nav-item--active,.nav-item--active:hover,.module-btn.active{width:calc(100% - 6px);margin-left:6px;color:var(--brand);background:var(--sidebar-active);font-weight:600;padding-left:16px}
+.nav-item>.tab-no,.module-btn>.tab-no{width:22px;flex:0 0 auto;color:var(--sidebar-muted);font:500 12px/1 var(--font-mono)}
+.nav-item--active>.tab-no,.module-btn.active>.tab-no{color:var(--accent);font-weight:600}
+.module-btn>div{display:flex;min-width:0;flex-direction:column;gap:1px;flex:1}
+.module-btn strong{font-size:var(--fs-2);font-weight:inherit;line-height:1.25}
+.module-btn small{overflow:hidden;color:var(--sidebar-muted);font-size:11px;line-height:1.2;text-overflow:ellipsis;white-space:nowrap}
+.module-btn.active small{color:var(--text-soft)}
+.module-btn>b{min-width:20px;color:var(--copper);font:600 12px/1 var(--font-mono);text-align:right}
+.module-btn.active>b{color:var(--accent)}
+.sidebar-label,.side-label{margin:18px 18px 8px;color:var(--sidebar-muted);font-size:var(--fs-1);font-weight:400}
+.side-foot{margin:auto 18px 0;padding-top:12px;border-top:1px solid var(--sidebar-line);color:var(--sidebar-muted);font-size:11px;line-height:1.5}
+.side-foot b{display:block;color:var(--sidebar-text);font-weight:500;font-size:var(--fs-1)}
+
+/* ===== tecnico: hoja de ruta ===== */
+.dashboard-page{display:grid;grid-template-columns:216px minmax(0,1fr);grid-template-rows:62px minmax(0,1fr)}
+.dashboard-page>.topbar{grid-column:2;grid-row:1}
+.dashboard-shell{display:contents}
+.sidebar{grid-column:1;grid-row:1 / 3;display:flex;flex-direction:column;min-height:100vh;padding:0 0 16px;background:var(--sidebar-bg);color:var(--sidebar-text)}
+.workspace{grid-column:2;grid-row:2;min-width:0;padding:26px 34px 40px;background:var(--surface)}
+.doc{max-width:960px}
+.doc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:16px}
+.doc-head h1{font:600 var(--fs-5)/1.1 var(--font-display);letter-spacing:-.02em;color:var(--text)}
+.doc-head h1 .n{margin-left:10px;color:var(--accent);font-family:var(--font-mono);font-weight:500;font-size:var(--fs-4);letter-spacing:0}
+.doc-lead{margin-top:7px;color:var(--text-muted);font-size:var(--fs-2)}
+.doc-lead b{color:var(--text);font-weight:600}
+.doc-code-col{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex:0 0 auto}
+.doc-code-col small{color:var(--text-soft);font-size:11px}
+.identity-strip{grid-template-columns:1.1fr 1.2fr 1fr 1.3fr 0.8fr}
+.route-view-switch{display:flex;flex-wrap:wrap;margin:28px 0 0;border-bottom:1px solid var(--border-strong)}
+.route-view-switch button{position:relative;height:36px;padding:0 18px;border:1px solid transparent;border-bottom:0;margin-bottom:-1px;border-radius:6px 6px 0 0;color:var(--text-muted);background:transparent;font-size:var(--fs-2);font-weight:500}
+.route-view-switch button:hover{color:var(--brand)}
+.route-view-switch button.active{color:var(--brand);background:var(--surface);border-color:var(--border-strong);border-top:2px solid var(--accent);font-weight:600}
+.route-view-switch button.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--surface)}
+.balance-card{border:1px solid var(--border-strong);border-top:0;background:var(--surface)}
+.balance-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px}
+.balance-heading h2{font:600 var(--fs-3)/1.2 var(--font-display)}
+.balance-heading small{display:block;margin-top:3px;color:var(--text-soft);font-size:var(--fs-1)}
+.balance-card table{font-variant-numeric:tabular-nums}
+.balance-card td{height:42px;color:var(--text)}
+.balance-card td.lno{width:48px;color:var(--text-soft);font:400 var(--fs-1) var(--font-mono)}
+.balance-card tbody tr:hover{background:var(--surface-alt)}
+.balance-card td.tipo{color:var(--text-soft);font-size:var(--fs-1)}
+.balance-card td strong{font-weight:600}
+.balance-card td.dash{color:var(--text-soft)}
+.balance-card tfoot td{height:auto;padding:14px 16px;border:0;color:var(--brand-contrast);background:var(--brand)}
+.balance-card tfoot td.sum-l{font-size:var(--fs-2);color:color-mix(in srgb,var(--brand-contrast) 78%,transparent)}
+.balance-card tfoot td.big{font:600 var(--fs-5)/1 var(--font-display);letter-spacing:-.02em;text-align:right;white-space:nowrap}
+.balance-card tfoot td.big .u{color:var(--copper);font-size:var(--fs-3);font-weight:500}
+.hoja-pie{padding:4px 16px 24px}
+.cuadre-line{display:flex;align-items:center;margin-top:20px;color:var(--text-muted);font-size:var(--fs-2)}
+.cuadre-line b{color:var(--text);font-weight:600;margin-right:4px}
+
+/* ===== tablas y botones ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{position:sticky;top:0;z-index:1;height:34px;padding:0 12px;color:var(--text-soft);background:var(--head-bg);border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong);font:500 var(--fs-1)/1 var(--font-body);text-align:left;white-space:nowrap}
+td{height:42px;padding:0 12px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:var(--fs-2);vertical-align:middle}
+.number{text-align:right}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 16px;border:1px solid var(--brand);border-radius:2px;color:var(--brand-contrast);background:var(--brand);font-size:var(--fs-2);font-weight:600;white-space:nowrap;transition:background .12s,color .12s,border-color .12s}
+.btn:hover{background:color-mix(in srgb,var(--brand) 84%,var(--brand-contrast))}
+.btn--ghost{color:var(--brand);background:var(--surface);border-color:var(--border-strong)}
+.btn--ghost:hover{border-color:var(--brand);background:var(--surface-alt)}
+.btn--warn{color:var(--danger);background:var(--surface);border-color:var(--border-strong)}
+.btn--warn:hover{border-color:var(--danger);background:var(--danger-soft)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ===== almacen ===== */
+.panel{display:flex;min-height:0;flex-direction:column;overflow:hidden;background:var(--surface)}
+.warehouse-page{display:grid;grid-template-columns:216px 262px minmax(0,1fr);grid-template-rows:62px minmax(0,1fr);height:100vh;min-height:520px}
+.warehouse-page>.topbar{grid-column:2 / -1;grid-row:1}
+.warehouse-workbench{display:contents}
+.warehouse-module-sidebar{grid-column:1;grid-row:1 / 3;min-height:0;overflow-y:auto;padding:0 0 16px;background:var(--sidebar-bg);color:var(--sidebar-text)}
+
+.seller-sidebar{grid-column:2;grid-row:2;border-right:1px solid var(--border-strong);background:var(--surface)}
+.seller-sidebar-heading{display:flex;align-items:baseline;justify-content:space-between;padding:20px 18px 8px}
+.seller-sidebar-heading p{font:600 var(--fs-3) var(--font-display);color:var(--text)}
+.seller-sidebar-heading span{color:var(--text-soft);font:400 var(--fs-1) var(--font-mono)}
+.seller-search{display:flex;align-items:center;margin:4px 18px 10px;border-bottom:1px solid var(--border-strong)}
+.seller-search:focus-within{border-bottom-color:var(--accent)}
+.seller-search span{color:var(--text-soft);font-size:var(--fs-2)}
+.seller-search input{width:100%;height:32px;padding:0 8px;border:0;outline:0;color:var(--text);background:transparent;font-size:var(--fs-2)}
+.seller-all,.seller-list>button{display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:left;transition:background .12s}
+.seller-all{width:100%;height:38px;margin:0;padding:0 18px;border:0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);border-left:3px solid transparent;color:var(--text);background:transparent;font-size:var(--fs-2);font-weight:600}
+.seller-all.active,.seller-list>button.active{background:var(--accent-soft);border-left-color:var(--accent)}
+.seller-all:not(.active):hover,.seller-list>button:not(.active):hover{background:var(--surface-alt)}
+.seller-all b,.seller-list>button>b{display:inline-flex;align-items:center;color:var(--accent);font:600 var(--fs-1)/1 var(--font-mono)}
+.seller-all b::before,.seller-list>button>b::before{content:"";width:9px;height:9px;margin-right:5px;border:1.5px solid var(--accent);border-radius:1px}
+.seller-list{min-height:0;flex:1;overflow-y:auto;padding:0}
+.seller-list>button{width:100%;min-height:46px;margin:0;padding:6px 18px;border:0;border-bottom:1px solid var(--border);border-left:3px solid transparent;border-radius:0;color:var(--text-muted);background:transparent}
+.seller-list>button>div{display:flex;min-width:0;flex-direction:column;gap:2px}
+.seller-list strong{color:var(--text);font:600 var(--fs-1) var(--font-mono);letter-spacing:.02em}
+.seller-list small{overflow:hidden;color:var(--text-muted);font-size:var(--fs-2);text-overflow:ellipsis;white-space:nowrap}
+
+.warehouse-orders{grid-column:3;grid-row:2;min-width:0;overflow-y:auto;display:block;background:var(--surface)}
+.warehouse-orders-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:24px 28px 0}
+.warehouse-orders-heading h2{font:600 var(--fs-5)/1.1 var(--font-display);letter-spacing:-.02em}
+.warehouse-orders-heading small{display:block;margin-top:6px;color:var(--text-muted);font-size:var(--fs-2)}
+.heading-actions{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.heading-actions .count{color:var(--text-soft);font:400 var(--fs-1) var(--font-mono);white-space:nowrap}
+.kpi-row{padding:10px 28px 18px;color:var(--text-muted);font-size:var(--fs-2)}
+.kpi-row b{color:var(--text);font-weight:600}
+.kpi-row b.cu{color:var(--accent)}
+.kpi-row .obs{color:var(--danger);font-weight:600}
+.warehouse-order-toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding:0 28px;border-bottom:1px solid var(--border-strong);flex-wrap:wrap}
+.warehouse-order-tabs{display:flex;gap:2px;margin-bottom:-1px}
+.warehouse-order-tabs button{position:relative;height:36px;padding:0 16px;border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;color:var(--text-muted);background:var(--head-bg);font-size:var(--fs-2);font-weight:500}
+.warehouse-order-tabs button:not(.active):hover{color:var(--brand)}
+.warehouse-order-tabs button.active{color:var(--brand);background:var(--surface);border-color:var(--border-strong);border-top:2px solid var(--accent);font-weight:600}
+.warehouse-order-tabs button.active::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:var(--surface)}
+.warehouse-order-tabs button b{margin-left:7px;color:var(--accent);font:600 var(--fs-1) var(--font-mono)}
+.order-id-search{display:flex;align-items:center;width:200px;height:32px;margin-bottom:4px;border-bottom:1px solid var(--border-strong)}
+.order-id-search:focus-within{border-bottom-color:var(--accent)}
+.order-id-search span{color:var(--text-soft);font:500 var(--fs-2) var(--font-mono)}
+.order-id-search input{min-width:0;width:100%;height:30px;padding:0 8px;border:0;outline:0;background:transparent;font-size:var(--fs-2)}
+
+.warehouse-orders .table-wrap{overflow:visible;padding:0 28px}
+.orders-table th:first-child,.orders-table td:first-child{padding-left:12px}
+.orders-table td{color:var(--text)}
+.orders-table tbody tr{cursor:pointer;transition:background .12s;box-shadow:inset 3px 0 0 transparent}
+.orders-table tbody tr:hover{background:var(--surface-alt)}
+.orders-table tbody tr.is-selected,.orders-table tbody tr.is-selected:hover{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent)}
+.order-id{font:600 var(--fs-2) var(--font-mono);color:var(--brand)}
+.route-tag{font:500 var(--fs-1) var(--font-mono);color:var(--text-muted);letter-spacing:.02em}
+.orders-table td.tec{max-width:210px}
+.orders-table td.tec span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orders-table td.tec small{display:block;margin-top:1px;color:var(--text-soft);font-size:var(--fs-1)}
+.orders-table td.st{white-space:nowrap}
+.orders-message{padding:28px;color:var(--text-muted);font-size:var(--fs-2)}
+.orders-result-count{padding:9px 40px;color:var(--text-soft);font:400 var(--fs-1) var(--font-mono);border-bottom:1px solid var(--border)}
+
+/* nota de entrega */
+.detail-section{position:relative;margin:28px 28px 40px;padding:20px 22px 24px;border:1px solid var(--border-strong);background:var(--surface);box-shadow:var(--shadow)}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding-bottom:16px}
+.detail-head h3{font:600 var(--fs-4)/1.15 var(--font-display);letter-spacing:-.01em}
+.detail-head h3 .n{margin-left:8px;color:var(--accent);font:500 var(--fs-4) var(--font-mono);letter-spacing:0}
+.detail-state{display:flex;align-items:center;margin-top:14px;font-size:var(--fs-2);font-weight:500}
+.detail-grid{grid-template-columns:90px 1.2fr 1.6fr 1fr 1fr}
+.detail-table{margin-top:18px;overflow-x:auto;border-top:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong);font-variant-numeric:tabular-nums}
+.detail-row{display:grid;grid-template-columns:34px minmax(130px,1.5fr) 96px 110px 60px 110px;gap:10px;min-width:600px;height:38px;padding:0 6px;border-bottom:1px solid var(--border);color:var(--text);font-size:var(--fs-2);align-items:center}
+.detail-row:last-child{border-bottom:0}
+.detail-row>span:first-child{color:var(--text-soft);font:400 var(--fs-1) var(--font-mono)}
+.detail-row>span:nth-child(3),.detail-row>span:nth-child(4),.detail-row>span:nth-child(6){text-align:right;font-family:var(--font-mono)}
+.detail-row>span:nth-child(5){color:var(--text-soft);font-size:var(--fs-1)}
+.detail-row--head{height:30px;color:var(--text-soft);background:var(--head-bg);font-size:var(--fs-1);font-weight:500}
+.detail-row--head>span,.detail-row--head>span:nth-child(n){font-family:var(--font-body)}
+.detail-row input{width:88px;height:28px;padding:0 6px;border:1px solid var(--accent);border-radius:2px;background:var(--surface);font:600 var(--fs-2) var(--font-mono);text-align:right}
+.detail-row input:focus{outline:2px solid var(--accent);outline-offset:0}
+.detail-row--total{background:var(--surface-alt);font-weight:600;border-top:1px solid var(--border-strong)}
+.detail-observation{margin-top:20px}
+.detail-observation span{display:block;color:var(--text-soft);font-size:var(--fs-1)}
+.detail-observation strong{display:block;margin-top:5px;padding-bottom:4px;border-bottom:1px solid var(--border-strong);color:var(--text);font:italic 400 var(--fs-3)/1.5 var(--font-body)}
+.approval-controls{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-top:28px;padding-top:18px;border-top:1px dashed var(--border-strong);flex-wrap:wrap}
+.approval-controls>.ff-grid{width:210px}
+.approval-controls>div:last-child{display:flex;gap:8px;flex-wrap:wrap}
+.toast{position:fixed;z-index:300;top:74px;right:20px;display:none;width:min(340px,calc(100vw - 32px));flex-direction:column;gap:3px;padding:12px 16px;border:1px solid var(--brand);border-left:4px solid var(--accent);background:var(--surface);box-shadow:4px 4px 0 var(--border-strong)}
+.toast.show{display:flex}
+.toast span{color:var(--text-soft);font-size:var(--fs-1)}
+.toast strong{font-size:var(--fs-2);font-weight:600}
+
+/* ===== login: caratula del formulario de acceso ===== */
+.login-page{min-height:100svh;padding:44px 28px 80px;background:var(--bg)}
+.sheet{max-width:1020px;margin:0 auto;border:1px solid var(--border-strong);background:var(--surface);box-shadow:var(--shadow)}
+.sheet-band{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:22px 34px;color:var(--login-panel-text);background:var(--login-panel-bg)}
+.sheet-band .brand{color:var(--login-panel-text)}
+.sheet-band .brand-name b{font-size:22px}
+.sheet-band .brand-name i{color:var(--login-panel-accent)}
+.sheet-band .brand-logo{width:28px;height:31px}
+.sheet-band .form-code{border-color:color-mix(in srgb,var(--login-panel-text) 40%,transparent);color:color-mix(in srgb,var(--login-panel-text) 82%,transparent)}
+.sheet-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr)}
+.cover{padding:38px 34px 34px;border-right:1px solid var(--border-strong)}
+.cover h1{max-width:360px;font:600 var(--fs-6)/1.05 var(--font-display);letter-spacing:-.03em;color:var(--brand)}
+.cover>p{max-width:340px;margin-top:16px;color:var(--text-muted);font-size:var(--fs-3);line-height:1.5}
+.cover .ff-grid{margin-top:34px;grid-template-columns:1.3fr 1fr}
+.cover .ff-grid .wide{grid-column:1 / -1}
+.cover .sign-row{grid-template-columns:1fr 1fr;margin-top:34px}
+.login-card{padding:38px 34px 34px}
+.login-form-shell{width:100%;max-width:430px}
+.step{display:flex;align-items:baseline;gap:10px;margin:0 0 10px;color:var(--text);font:600 var(--fs-3) var(--font-display)}
+.step i{color:var(--accent);font:500 var(--fs-1) var(--font-mono);font-style:normal}
+.login-roles{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border-strong);border-left:1px solid var(--border-strong);margin-bottom:26px}
+.login-card .login-role{position:relative;display:block;margin:0;cursor:pointer}
+.login-role input{position:absolute;opacity:0;pointer-events:none}
+.login-role span{display:grid;grid-template-columns:14px 1fr;column-gap:9px;height:100%;padding:11px 12px;border-right:1px solid var(--border-strong);border-bottom:1px solid var(--border-strong);transition:background .12s}
+.login-role span::before{content:"";width:14px;height:14px;margin-top:2px;border:1.5px solid var(--text-soft);border-radius:1px;background:var(--surface) center/16px 16px no-repeat;grid-row:1 / 3}
+.login-role b{color:var(--text);font-size:var(--fs-2);font-weight:600}
+.login-role small{color:var(--text-muted);font-size:var(--fs-1);font-weight:400;line-height:1.3}
+.login-role:hover span{background:var(--surface-alt)}
+.login-role input:checked+span{background:var(--accent-soft)}
+.login-role input:checked+span::before{border-color:var(--accent);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M1.5 7.5l3.8 4L13 1.5' fill='none' stroke='%23B5582F' stroke-width='2'/%3E%3C/svg%3E")}
+.login-role input:focus-visible+span{outline:2px solid var(--accent);outline-offset:-2px}
+.field-sel .chev{position:absolute;right:12px;bottom:12px;width:11px;height:11px;fill:none;stroke:var(--text-soft);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.field-sel select{cursor:pointer;appearance:none;-webkit-appearance:none;padding-right:26px}
+.field-sel select option{color:var(--text);background:var(--surface)}
+.login-sign{margin-top:30px}
+.login-sign small{display:block;color:var(--text-soft);font-size:var(--fs-1)}
+.primary-button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;height:46px;margin-top:8px;padding:0 16px;border:1px solid var(--brand);border-radius:2px;color:var(--brand-contrast);background:var(--brand);font-size:var(--fs-3);font-weight:600;transition:background .12s}
+.primary-button:hover{background:color-mix(in srgb,var(--brand) 82%,var(--accent))}
+.primary-button b{font-size:var(--fs-4);font-weight:500;color:var(--copper)}
+.sheet-foot{display:flex;justify-content:space-between;gap:16px;padding:12px 34px;border-top:1px solid var(--border-strong);color:var(--text-soft);font-size:var(--fs-1);background:var(--surface-alt)}
+.sheet-foot b{color:var(--text-muted);font-weight:500}
+
+/* ===== menu movil ===== */
+.drawer-backdrop{display:none}
+@media(max-width:1180px){
+  .warehouse-page{grid-template-columns:200px 232px minmax(0,1fr)}
+  .dashboard-page{grid-template-columns:200px minmax(0,1fr)}
+  .top-search{width:170px}
+  .detail-grid{grid-template-columns:1fr 1fr}
+  .identity-strip{grid-template-columns:1fr 1fr 1fr}
+}
+@media(max-width:900px){
+  .warehouse-page,.dashboard-page{display:block;height:auto;min-height:100vh}
+  .warehouse-module-sidebar,.sidebar{display:none}
+  .seller-sidebar{max-height:300px;border-right:0;border-bottom:1px solid var(--border-strong)}
+  .warehouse-orders{overflow:visible}
+  .warehouse-orders .table-wrap{overflow-x:auto}
+  .workspace{padding:20px 18px 28px}
+  .sheet-body{grid-template-columns:1fr}
+  .cover{border-right:0;border-bottom:1px solid var(--border-strong)}
+  .login-page{padding:20px 14px 70px}
+  .mobile-menu{display:flex;flex-direction:column;justify-content:center;gap:3px;width:30px;height:30px;padding:7px;border:0;background:transparent}
+  .mobile-menu span{display:block;width:16px;height:2px;background:var(--brand)}
+  .drawer-backdrop.open{display:block;position:fixed;z-index:400;inset:0;background:color-mix(in srgb,var(--brand) 55%,transparent)}
+  .drawer{position:fixed;z-index:410;top:0;bottom:0;left:0;width:260px;max-width:86vw;padding:0 0 16px;overflow-y:auto;display:flex;flex-direction:column;background:var(--sidebar-bg);color:var(--sidebar-text);transform:translateX(-100%);transition:transform .2s}
+  .drawer.open{transform:none}
+}
+@media(min-width:901px){.drawer,.drawer-backdrop{display:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(max-width:580px){
+  .topbar{padding:0 12px;gap:10px}
+  .crumbs>span,.crumbs>i{display:none}
+  .top-search{display:none}
+  .topbar-user .who{display:none}
+  .workspace{padding:16px 12px 24px}
+  .doc-head{flex-direction:column;gap:10px}
+  .doc-code-col{align-items:flex-start}
+  .identity-strip,.detail-grid{grid-template-columns:1fr 1fr}
+  .route-view-switch button{padding:0 10px}
+  .balance-heading{align-items:flex-start;flex-direction:column}
+  .balance-card td.tipo,.balance-card th:nth-child(3){display:none}
+  .warehouse-orders-heading{padding:16px 14px 0;flex-direction:column}
+  .heading-actions{align-items:flex-start}
+  .kpi-row{padding:8px 14px 12px}
+  .warehouse-order-toolbar{padding:0 14px}
+  .order-id-search{width:100%}
+  .warehouse-orders .table-wrap{padding:0}
+  .orders-table thead{display:none}
+  .orders-table,.orders-table tbody,.orders-table tr,.orders-table td{display:block;width:100%}
+  .orders-table tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding:10px 14px;border-bottom:1px solid var(--border)}
+  .orders-table td{height:auto;padding:2px 0;border:0}
+  .orders-table td::before{content:attr(data-label);display:block;color:var(--text-soft);font:400 11px/1.3 var(--font-body)}
+  .orders-table td:first-child::before{display:none}
+  .orders-table td.tec{max-width:none}
+  .orders-result-count{padding:9px 14px}
+  .detail-section{margin:12px 10px 32px;padding:16px 12px 20px}
+  .approval-controls>div:last-child{width:100%}
+  .approval-controls .btn{flex:1}
+  .approval-controls>.ff-grid{width:100%}
+  .sign-row{grid-template-columns:1fr;gap:14px}
+  .sheet-band{padding:16px 18px}
+  .cover,.login-card{padding:24px 18px}
+  .cover h1{font-size:var(--fs-5)}
+  .sheet-foot{padding:12px 18px;flex-direction:column;gap:4px}
+  .view-switch{right:8px;bottom:8px}
+}
+</style>
+</head>
+<body>
+<!-- THEME:MARK -->
+<svg style="display:none" aria-hidden="true"><symbol id="brand-mark" viewBox="0 0 32 36"><path fill="currentColor" fill-rule="evenodd" d="M2 1h19l9 9v25H2Zm5.5 26h17L18 14.5l-3 5-2.5-3.5Z"/><path fill="currentColor" opacity=".45" d="M21 1v9h9Z"/></symbol></svg>
+
+<!-- ========== LOGIN ========== -->
+<div class="view is-active" id="view-login">
+  <main class="login-page">
+    <section class="sheet">
+      <header class="sheet-band">
+        <div class="brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="brand-name"><b>Acceso</b><i>General</i></span></div>
+        <span class="form-code">F-ACC-01 · v2</span>
+      </header>
+      <div class="sheet-body">
+        <div class="cover">
+          <h1>Formulario de acceso</h1>
+          <p>Elija su perfil y la sucursal donde trabaja hoy. Cada pedido, cuadre y aprobación queda firmado con su usuario.</p>
+          <div class="ff-grid">
+            <div class="ff"><label>Fecha</label><strong>lun 20 oct 2026</strong></div>
+            <div class="ff"><label>Hora</label><strong class="mono">08:05</strong></div>
+            <div class="ff wide"><label>Terminal</label><strong>Almacén Central · caja 2</strong></div>
+          </div>
+          <div class="sign-row"><div class="sign"><small>Entrega</small><b>Sistemas</b></div><div class="sign"><small>Recibe</small><b></b></div></div>
+        </div>
+        <section class="login-card">
+          <div class="login-form-shell">
+            <form id="login-form" novalidate>
+              <p class="step"><i>1</i>Perfil de acceso</p>
+              <div class="login-roles" role="radiogroup" aria-label="Perfil de acceso">
+                <label class="login-role"><input type="radio" name="lg-role" value="almacen" checked><span><b>Almacén</b><small>Pedidos, cuadres y cierre</small></span></label>
+                <label class="login-role"><input type="radio" name="lg-role" value="tecnico"><span><b>Técnico</b><small>Hoja de ruta y cuadre</small></span></label>
+                <label class="login-role"><input type="radio" name="lg-role" value="cont-depositos"><span><b>Contabilidad</b><small>Control de depósitos</small></span></label>
+                <label class="login-role"><input type="radio" name="lg-role" value="sis-reinicio"><span><b>Sistemas</b><small>Usuarios y claves</small></span></label>
+              </div>
+              <p class="step"><i>2</i>Sucursal</p>
+              <div class="ff-grid"><div class="ff field-sel"><label for="lg-branch">Sucursal de trabajo</label><select id="lg-branch"><option value="">Seleccione…</option><option selected>Central</option><option>Norte</option><option>Sur</option><option>El Alto</option></select><svg class="chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div></div>
+              <div class="login-sign">
+                <small>Al ingresar firma con su usuario.</small>
+                <button class="primary-button" type="submit">Ingresar<b>→</b></button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </div>
+      <footer class="sheet-foot"><span>Soporte: <b>interno 214</b></span><span>Original: Sistemas · Copia: usuario</span></footer>
+    </section>
+  </main>
+</div>
+
+<!-- ========== ALMACEN ========== -->
+<div class="view" id="view-almacen">
+  <main class="warehouse-page">
+    <header class="topbar">
+      <button class="mobile-menu" type="button" aria-label="Abrir menú" data-drawer="drawer-alm"><span></span><span></span><span></span></button>
+      <nav class="crumbs" aria-label="Ubicación"><span>Almacén Central</span><i>/</i><strong>01 Ver pedidos</strong></nav>
+      <label class="top-search"><span>⌕</span><input type="search" placeholder="Buscar pedido, ruta o técnico" aria-label="Buscar"></label>
+      <div class="topbar-user">
+        <div class="who"><strong>Josué Cabrera</strong><span>Almacén Central</span></div>
+        <button class="logout" type="button">Cerrar sesión</button>
+      </div>
+    </header>
+
+    <section class="warehouse-workbench">
+      <nav class="panel warehouse-module-sidebar" aria-label="Módulos de almacén">
+        <div class="side-brand brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="brand-name"><b>Acceso</b><i>General</i></span></div>
+        <p class="side-label">Archivo de almacén</p>
+        <button class="module-btn active" type="button"><span class="tab-no">01</span><div><strong>Ver pedidos</strong><small>Revisar y aprobar</small></div><b id="mod-pend">0</b></button>
+        <button class="module-btn" type="button"><span class="tab-no">02</span><div><strong>Ver cuadres</strong><small>Control diario por ruta</small></div></button>
+        <button class="module-btn" type="button"><span class="tab-no">03</span><div><strong>Cierre de almacén</strong><small>Saldos y movimientos</small></div></button>
+        <button class="module-btn" type="button"><span class="tab-no">04</span><div><strong>Dispositivos</strong><small>Seriales y equipos</small></div></button>
+        <button class="module-btn" type="button"><span class="tab-no">05</span><div><strong>Estadísticas</strong><small>Pedidos y rutas</small></div></button>
+        <div class="side-foot"><b>Almacén Central</b>lun 20 oct, 08:05<br>Tutorial · Soporte int. 214</div>
+      </nav>
+
+      <aside class="panel seller-sidebar">
+        <div class="seller-sidebar-heading"><p>Hojas de ruta</p><span>8 rutas</span></div>
+        <div class="seller-search"><span>⌕</span><input id="route-search" type="search" placeholder="Ruta o técnico"></div>
+        <button class="seller-all active" id="route-all" type="button"><span>Todas las rutas</span><b id="route-all-count">0</b></button>
+        <div class="seller-list" id="route-list"></div>
+      </aside>
+
+      <section class="panel warehouse-orders">
+        <div class="warehouse-orders-heading">
+          <div><h2 id="orders-title">Despacho de hoy</h2><small id="orders-sub"></small></div>
+          <div class="heading-actions"><span class="form-code">F-ALM-03 · v4</span><button class="btn btn--success" id="btn-direct" type="button" style="display:none">+ Entrega directa</button><span class="count" id="orders-count">0 pedido(s)</span></div>
+        </div>
+        <div class="kpi-row" id="kpis"></div>
+        <div class="warehouse-order-toolbar">
+          <div class="warehouse-order-tabs" id="tabs">
+            <button class="active" data-tab="pendientes" type="button">Por aprobar <b id="tab-pend">0</b></button>
+            <button data-tab="todos" type="button">Todos</button>
+            <button data-tab="confirmados" type="button">Confirmados</button>
+          </div>
+          <div class="order-id-search"><span>N°</span><input id="order-search" type="search" inputmode="numeric" placeholder="1842"></div>
+        </div>
+        <div class="table-wrap">
+          <table class="orders-table">
+            <thead><tr><th>N°</th><th>Ruta</th><th>Técnico</th><th>Entrega</th><th>Productos</th><th class="number">Valor Bs</th><th>Estado</th></tr></thead>
+            <tbody id="orders-body"></tbody>
+          </table>
+        </div>
+        <div class="orders-message" id="orders-empty" style="display:none">Ningún pedido coincide con este filtro.</div>
+        <div class="orders-result-count" id="orders-result"></div>
+        <section class="detail-section" id="detail"></section>
+      </section>
+    </section>
+  </main>
+  <div class="toast" id="toast"><span>Registrado en la nota</span><strong id="toast-text"></strong></div>
+</div>
+
+<!-- ========== TECNICO ========== -->
+<div class="view" id="view-tecnico">
+  <div class="dashboard-page">
+    <header class="topbar">
+      <button class="mobile-menu" type="button" aria-label="Abrir menú" data-drawer="drawer-tec"><span></span><span></span><span></span></button>
+      <nav class="crumbs" aria-label="Ubicación"><span>Sucursal Central</span><i>/</i><strong>01 Hoja de ruta</strong></nav>
+      <label class="top-search"><span>⌕</span><input type="search" placeholder="Buscar producto" aria-label="Buscar"></label>
+      <div class="topbar-user">
+        <div class="who"><strong>Juan Pérez</strong><span>Técnico · RUTA-12</span></div>
+        <button class="logout" type="button">Cerrar sesión</button>
+      </div>
+    </header>
+    <div class="dashboard-shell">
+      <aside class="sidebar">
+        <div class="side-brand brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="brand-name"><b>Acceso</b><i>General</i></span></div>
+        <p class="sidebar-label">Mi carpeta</p>
+        <button class="nav-item nav-item--active" type="button"><span class="tab-no">01</span>Hoja de ruta</button>
+        <button class="nav-item" type="button"><span class="tab-no">02</span>Mi cuadre</button>
+        <button class="nav-item" type="button"><span class="tab-no">03</span>Mi perfil</button>
+        <button class="nav-item" type="button"><span class="tab-no">04</span>Tutorial</button>
+        <div class="side-foot"><b>Sucursal Central</b>lun 20 oct, 08:05<br>Soporte int. 214</div>
+      </aside>
+      <section class="workspace">
+        <div class="doc">
+          <div class="doc-head">
+            <div>
+              <h1>Hoja de ruta<span class="n">RUTA-12</span></h1>
+              <p class="doc-lead"><b>5 productos</b> con saldo · 289 u. y Bs 4.350 en Tigo Money · al lun 20 oct, 08:05</p>
+            </div>
+            <div class="doc-code-col"><span class="form-code">F-RUT-01 · v2</span><small>Hoja N° 0012-1020</small></div>
+          </div>
+          <div class="ff-grid identity-strip">
+            <div class="ff"><label>Ruta</label><strong class="mono">RUTA-12</strong></div>
+            <div class="ff"><label>Técnico</label><strong>Juan Pérez</strong></div>
+            <div class="ff"><label>Sucursal</label><strong>Central</strong></div>
+            <div class="ff"><label>Fecha</label><strong>lun 20 oct 2026</strong></div>
+            <div class="ff"><label>Moneda</label><strong>Bs</strong></div>
+          </div>
+          <nav class="route-view-switch" aria-label="Secciones de la ruta">
+            <button class="active" type="button">Ver saldos</button>
+            <button type="button">Ver pedidos</button>
+            <button type="button">Depósitos</button>
+            <button type="button">Mi cuadre</button>
+          </nav>
+          <section class="balance-card">
+            <div class="balance-heading">
+              <div><h2>Saldo disponible</h2><small>Lo que lleva el técnico en ruta, valorizado al precio de lista</small></div>
+              <button class="btn" type="button">Hacer pedido</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>N°</th><th>Producto</th><th>Tipo</th><th class="number">Cantidad</th><th class="number">Valor Bs</th></tr></thead>
+                <tbody>
+                  <tr><td class="lno">01</td><td><strong>Tigo Money</strong></td><td class="tipo">Saldo</td><td class="number dash">—</td><td class="number">4.350,00</td></tr>
+                  <tr><td class="lno">02</td><td><strong>Chip Prepago</strong></td><td class="tipo">Chip</td><td class="number">120<span class="u">u.</span></td><td class="number">1.200,00</td></tr>
+                  <tr><td class="lno">03</td><td><strong>Tarjeta T10</strong></td><td class="tipo">Tarjeta</td><td class="number">85<span class="u">u.</span></td><td class="number">850,00</td></tr>
+                  <tr><td class="lno">04</td><td><strong>Tarjeta T20</strong></td><td class="tipo">Tarjeta</td><td class="number">60<span class="u">u.</span></td><td class="number">1.200,00</td></tr>
+                  <tr><td class="lno">05</td><td><strong>Tarjeta T50</strong></td><td class="tipo">Tarjeta</td><td class="number">24<span class="u">u.</span></td><td class="number">1.200,00</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="3" class="sum-l">Total de la ruta · 5 líneas</td><td class="number sum-l">289<span class="u" style="color:inherit">u.</span></td><td class="big"><span class="u">Bs</span> 8.800,00</td></tr></tfoot>
+              </table>
+            </div>
+            <div class="hoja-pie">
+              <p class="cuadre-line"><i class="cb"></i><b>Cuadre del lunes 20</b> pendiente · se hace al cierre de ruta</p>
+              <div class="sign-row">
+                <div class="sign"><small>Entregado por (almacén)</small><b>Josué Cabrera</b></div>
+                <div class="sign"><small>Recibido por (técnico)</small><b>Juan Pérez</b></div>
+                <div class="sign"><small>Revisado por</small><b></b></div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- drawers moviles -->
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer-alm">
+  <div class="side-brand brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="brand-name"><b>Acceso</b><i>General</i></span></div>
+  <p class="sidebar-label">Archivo de almacén</p>
+  <button class="nav-item nav-item--active" type="button"><span class="tab-no">01</span>Ver pedidos</button>
+  <button class="nav-item" type="button"><span class="tab-no">02</span>Ver cuadres</button>
+  <button class="nav-item" type="button"><span class="tab-no">03</span>Cierre de almacén</button>
+  <button class="nav-item" type="button"><span class="tab-no">04</span>Dispositivos</button>
+  <button class="nav-item" type="button"><span class="tab-no">05</span>Estadísticas</button>
+  <div class="side-foot"><b>Almacén Central</b>Soporte int. 214</div>
+</aside>
+<aside class="drawer" id="drawer-tec">
+  <div class="side-brand brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="brand-name"><b>Acceso</b><i>General</i></span></div>
+  <p class="sidebar-label">Mi carpeta</p>
+  <button class="nav-item nav-item--active" type="button"><span class="tab-no">01</span>Hoja de ruta</button>
+  <button class="nav-item" type="button"><span class="tab-no">02</span>Mi cuadre</button>
+  <button class="nav-item" type="button"><span class="tab-no">03</span>Mi perfil</button>
+  <button class="nav-item" type="button"><span class="tab-no">04</span>Tutorial</button>
+  <div class="side-foot"><b>Sucursal Central</b>Soporte int. 214</div>
+</aside>
+
+<div class="view-switch" role="tablist" aria-label="Cambiar vista del mock">
+  <button type="button" data-view="login" class="is-active">Login</button>
+  <button type="button" data-view="almacen">Almacén</button>
+  <button type="button" data-view="tecnico">Técnico</button>
+</div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  function grp(s){return s.replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+  var int={format:function(n){return grp(String(Math.round(n)))}};
+  var fmt={format:function(n){var p=(Math.round(n*100)/100).toFixed(2).split('.');return grp(p[0])+','+p[1]}};
+
+  /* --- conmutador de vistas --- */
+  function show(v){
+    $$('.view').forEach(function(e){e.classList.toggle('is-active',e.id==='view-'+v)});
+    $$('.view-switch button').forEach(function(b){b.classList.toggle('is-active',b.dataset.view===v)});
+    closeDrawer();
+    try{history.replaceState(null,'','#'+v)}catch(e){}
+    window.scrollTo(0,0);
+  }
+  $$('.view-switch button').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.view)})});
+  var h=(location.hash||'').slice(1); if(['login','almacen','tecnico'].indexOf(h)>-1) show(h);
+
+  /* --- login --- */
+  $('#login-form').addEventListener('submit',function(e){e.preventDefault();var r=$('input[name="lg-role"]:checked');var v=r?r.value:'almacen';show(document.getElementById('view-'+v)?v:'almacen')});
+  $$('.topbar-user .logout').forEach(function(b){b.addEventListener('click',function(){show('login')})});
+
+  /* --- drawers --- */
+  function closeDrawer(){$$('.drawer').forEach(function(d){d.classList.remove('open')});$('#drawer-backdrop').classList.remove('open')}
+  $$('.mobile-menu').forEach(function(b){b.addEventListener('click',function(){$('#'+b.dataset.drawer).classList.add('open');$('#drawer-backdrop').classList.add('open')})});
+  $('#drawer-backdrop').addEventListener('click',closeDrawer);
+
+  /* --- almacen: datos --- */
+  var routes=[
+    ['RUTA-01','Juan Pérez'],['RUTA-02','María Fernanda Quispe Mamani'],['RUTA-03','Carlos Mamani'],['RUTA-04','Lucía Flores'],
+    ['RUTA-05','Diego Choque'],['RUTA-06','Ana Gutiérrez'],['RUTA-07','Rodrigo Vargas'],['RUTA-08','Paola Rojas']
+  ];
+  var P={tm:['Tigo Money',1],chip:['Chip Prepago',10],t10:['Tarjeta T10',10],t20:['Tarjeta T20',20],t50:['Tarjeta T50',50]};
+  var orders=[
+    {id:1851,ruta:'RUTA-06',tec:'Ana Gutiérrez',reg:'lun 20 oct, 09:42',ent:'',st:'Pendiente',obs:'Se acabaron las T10 el sábado, la T20 igual. Mándeme lo que pueda.',l:[['t10',65],['t20',37]]},
+    {id:1848,ruta:'RUTA-08',tec:'Paola Rojas',reg:'lun 20 oct, 09:15',ent:'',st:'Pendiente',obs:'Abrí tres puntos nuevos en la zona de la feria, necesito chips.',l:[['chip',100],['t10',50]]},
+    {id:1845,ruta:'RUTA-01',tec:'Juan Pérez',reg:'lun 20 oct, 08:30',ent:'',st:'Pendiente',obs:'Quedé con poco saldo de Tigo Money al cierre de ayer.',l:[['tm',3000],['t10',40]]},
+    {id:1842,ruta:'RUTA-03',tec:'Carlos Mamani',reg:'lun 20 oct, 08:05',ent:'',st:'Pendiente',obs:'Mucha demanda desde el viernes, por eso el pedido sale grande.',l:[['tm',5000],['chip',150],['t10',80],['t20',37]]},
+    {id:1839,ruta:'RUTA-02',tec:'María Fernanda Quispe Mamani',reg:'dom 19 oct, 17:36',ent:'',st:'Observado',obs:'Almacén: los chips no cuadran con el cuadre del domingo. Aclarar con la técnica antes de despachar.',l:[['chip',215],['t50',30]]},
+    {id:1831,ruta:'RUTA-05',tec:'Diego Choque',reg:'dom 19 oct, 16:20',ent:'lun 20 oct',st:'Aprobado',obs:'Pedido regular de la semana.',by:'Josué Cabrera',l:[['chip',80],['t20',50],['t50',20]]},
+    {id:1822,ruta:'RUTA-02',tec:'María Fernanda Quispe Mamani',reg:'dom 19 oct, 11:48',ent:'lun 20 oct',st:'Modificado',obs:'Se bajaron los chips a 60 por disponibilidad. Avisar a la técnica.',by:'Josué Cabrera',l:[['chip',60],['t10',70]]},
+    {id:1817,ruta:'RUTA-04',tec:'Lucía Flores',reg:'sáb 18 oct, 15:10',ent:'dom 19 oct',st:'Confirmado',obs:'Recibido conforme.',by:'Josué Cabrera',l:[['tm',2000],['t50',30]]},
+    {id:1809,ruta:'RUTA-07',tec:'Rodrigo Vargas',reg:'vie 17 oct, 10:02',ent:'sáb 18 oct',st:'Confirmado',obs:'Recibido conforme.',by:'Josué Cabrera',l:[['chip',1215],['t10',60],['t20',40]]},
+    {id:1803,ruta:'RUTA-01',tec:'Juan Pérez',reg:'jue 16 oct, 14:27',ent:'',st:'Rechazado',obs:'Duplicado del pedido 1798, se anula.',by:'Josué Cabrera',l:[['t10',40]]}
+  ];
+  var st={tab:'pendientes',ruta:'',q:'',id:'',sel:1842,edit:false};
+  function lines(o){return o.l.map(function(x){var p=P[x[0]];return {n:p[0],u:p[1],q:x[1],t:p[1]*x[1],tm:x[0]==='tm'}})}
+  function units(o){return o.l.reduce(function(a,x){return a+(x[0]==='tm'?0:x[1])},0)}
+  function total(o){return lines(o).reduce(function(a,x){return a+x.t},0)}
+  function isOpen(o){return o.st==='Pendiente'||o.st==='Observado'}
+  function pend(r){return orders.filter(function(o){return o.st==='Pendiente'&&(!r||o.ruta===r)}).length}
+  function cbOf(s){return {Pendiente:'cb',Observado:'cb cb--obs',Aprobado:'cb cb--ok',Modificado:'cb cb--ok',Confirmado:'cb cb--done',Rechazado:'cb cb--no'}[s]||'cb'}
+  function stCls(s){return s==='Observado'?'st-obs':s==='Rechazado'?'st-no':''}
+  function stampOf(s){
+    var m={Aprobado:['Aprobado',''],Modificado:['Modificado',''],Confirmado:['Confirmado','stamp--navy'],Observado:['Observado','stamp--red'],Rechazado:['Rechazado','stamp--red']}[s];
+    return m?'<span class="stamp '+m[1]+'">'+m[0]+'</span>':'';
+  }
+  function stLabel(s){return s==='Pendiente'?'Pendiente':s}
+
+  function renderRoutes(){
+    var q=st.q.toLowerCase();
+    var html=routes.filter(function(r){return !q||(r[0]+' '+r[1]).toLowerCase().indexOf(q)>-1}).map(function(r){
+      var n=pend(r[0]);
+      return '<button type="button" data-r="'+r[0]+'" class="'+(st.ruta===r[0]?'active':'')+'"><div><strong>'+r[0]+'</strong><small>'+r[1]+'</small></div>'+(n?'<b>'+n+'</b>':'')+'</button>';
+    }).join('');
+    $('#route-list').innerHTML=html||'<div class="orders-message">Sin resultados.</div>';
+    $('#route-all').classList.toggle('active',!st.ruta);
+    var t=pend('');
+    $('#route-all-count').textContent=t; $('#mod-pend').textContent=t; $('#tab-pend').textContent=t;
+    $$('#route-list>button').forEach(function(b){b.addEventListener('click',function(){st.ruta=b.dataset.r;st.tab='pendientes';render()})});
+  }
+  function filtered(){
+    return orders.filter(function(o){
+      if(st.ruta&&o.ruta!==st.ruta)return false;
+      if(st.id&&String(o.id).indexOf(st.id)<0)return false;
+      if(st.tab==='pendientes')return isOpen(o);
+      if(st.tab==='confirmados')return o.st==='Confirmado';
+      return true;
+    });
+  }
+  function renderOrders(){
+    var list=filtered(), r=routes.filter(function(x){return x[0]===st.ruta})[0];
+    $('#orders-title').textContent=r?r[0]:(st.tab==='pendientes'?'Despacho de hoy':st.tab==='confirmados'?'Entregas confirmadas':'Todos los pedidos');
+    $('#orders-sub').textContent=r?'Técnico asignado: '+r[1]:'';
+    $('#btn-direct').style.display=r?'':'none';
+    $('#orders-count').textContent=list.length+' fila(s)';
+    $$('#tabs button').forEach(function(b){b.classList.toggle('active',b.dataset.tab===st.tab)});
+    $('#orders-body').innerHTML=list.map(function(o){
+      var lbl=o.st==='Pendiente'?'Pendiente':o.st;
+      return '<tr data-id="'+o.id+'" class="'+(o.id===st.sel?'is-selected':'')+'" tabindex="0">'+
+        '<td data-label="N°"><span class="order-id">'+o.id+'</span></td>'+
+        '<td data-label="Ruta"><span class="route-tag">'+o.ruta+'</span></td>'+
+        '<td data-label="Técnico" class="tec"><span title="'+o.tec+'">'+o.tec+'</span><small>'+o.reg+'</small></td>'+
+        '<td data-label="Entrega" class="mono">'+(o.ent||'<span style="color:var(--text-soft)">—</span>')+'</td>'+
+        '<td data-label="Productos" class="mono">'+o.l.length+' lín. · '+int.format(units(o))+'<span class="u">u.</span></td>'+
+        '<td data-label="Valor Bs" class="number mono">'+fmt.format(total(o))+'</td>'+
+        '<td data-label="Estado" class="st '+stCls(o.st)+'"><i class="'+cbOf(o.st)+'"></i>'+lbl+'</td></tr>';
+    }).join('');
+    $('#orders-empty').style.display=list.length?'none':'block';
+    $('#orders-result').textContent=list.length+' de '+orders.length+' pedidos · hoja 1 de 1';
+    $$('#orders-body tr').forEach(function(tr){
+      function pick(){st.sel=+tr.dataset.id;st.edit=false;renderOrders();renderDetail();if(window.innerWidth<=900)$('#detail').scrollIntoView({behavior:'smooth',block:'start'})}
+      tr.addEventListener('click',pick);
+      tr.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
+    });
+  }
+  function renderKpis(){
+    var abiertos=orders.filter(function(o){return o.st==='Pendiente'});
+    var bs=abiertos.reduce(function(a,o){return a+total(o)},0);
+    var obs=orders.filter(function(o){return o.st==='Observado'}).length;
+    var apr=orders.filter(function(o){return o.st==='Aprobado'||o.st==='Modificado'}).length;
+    $('#kpis').innerHTML='<b class="cu">'+abiertos.length+'</b> pedido'+(abiertos.length===1?'':'s')+' esperan aprobación · <b>Bs '+int.format(bs)+'</b>'+
+      (obs?' · <span class="obs">'+obs+' observado'+(obs===1?'':'s')+'</span>':'')+' · '+apr+' aprobado'+(apr===1?'':'s')+' por entregar';
+  }
+  function fld(l,v,c){return '<div class="ff"><label>'+l+'</label><strong'+(c?' class="'+c+'"':'')+'>'+v+'</strong></div>'}
+  function renderDetail(){
+    var o=orders.filter(function(x){return x.id===st.sel})[0], d=$('#detail');
+    if(!o){d.innerHTML='<div class="orders-message">Seleccione un pedido de la lista para abrir su nota.</div>';return}
+    var ls=lines(o), canAct=isOpen(o)||o.st==='Modificado';
+    var rows=ls.map(function(x,i){
+      return '<div class="detail-row"><span>'+(i<9?'0':'')+(i+1)+'</span><span>'+x.n+'</span><span>'+(x.tm?'1,00':fmt.format(x.u))+'<span class="u">Bs</span></span><span>'+(st.edit?'<input type="number" min="0" data-i="'+i+'" value="'+x.q+'" aria-label="Cantidad de '+x.n+'">':int.format(x.q))+'<span class="u">'+(x.tm?'Bs':'u.')+'</span></span><span>'+(x.tm?'Saldo':x.n.indexOf('Chip')>-1?'Chip':'Tarjeta')+'</span><span>'+fmt.format(x.t)+'</span></div>';
+    }).join('');
+    var aprob=(o.st==='Aprobado'||o.st==='Confirmado')?o.by:'';
+    var revis=o.by||'';
+    var estado=o.st==='Pendiente'?'<div class="detail-state"><i class="cb"></i>Pendiente de aprobación</div>':'';
+    d.innerHTML='<div class="detail-head"><div><h3>Nota de entrega<span class="n">N° '+o.id+'</span></h3></div><span class="form-code">F-ALM-03 · v4</span></div>'+
+      '<div class="ff-grid detail-grid">'+fld('N°',o.id,'mono')+fld('Ruta',o.ruta,'mono')+fld('Técnico',o.tec)+fld('Registrado',o.reg)+fld('Entrega',o.ent||'<span class="empty">—</span>')+'</div>'+
+      estado+
+      '<div class="detail-table"><div class="detail-row detail-row--head"><span>N°</span><span>Producto</span><span>P. unit.</span><span>Cantidad</span><span>Tipo</span><span>Subtotal</span></div>'+rows+
+      '<div class="detail-row detail-row--total"><span></span><span>Total</span><span></span><span>'+int.format(units(o))+'<span class="u">u.</span></span><span></span><span>'+fmt.format(total(o))+'<span class="u">Bs</span></span></div></div>'+
+      '<div class="detail-observation"><span>Nota del técnico</span><strong>'+o.obs+'</strong></div>'+
+      '<div class="sign-row"><div class="sign"><small>Solicitado por</small><b>'+o.tec+'</b></div><div class="sign"><small>Revisado por</small><b>'+revis+'</b></div><div class="sign"><small>Aprobado por</small><b>'+aprob+'</b>'+stampOf(o.st)+'</div></div>'+
+      (canAct?'<div class="approval-controls"><div class="ff-grid"><div class="ff"><label for="fecha-entrega">Fecha de entrega</label><input id="fecha-entrega" type="date" value="2026-10-21"></div></div><div>'+
+        '<button class="btn btn--ghost" id="btn-mod" type="button">'+(st.edit?'Guardar cambios':'Modificar')+'</button>'+
+        (o.st==='Pendiente'?'<button class="btn btn--warn" id="btn-obs" type="button">Observar</button>':'')+
+        '<button class="btn btn--success" id="btn-apr" type="button">Aprobar pedido</button></div></div>':'');
+    if(canAct){
+      $('#btn-apr').addEventListener('click',function(){readEdit(o);o.st='Aprobado';o.ent='mar 21 oct';o.by='Josué Cabrera';st.edit=false;render();toast('Pedido '+o.id+' aprobado para '+o.ruta+'.')});
+      $('#btn-mod').addEventListener('click',function(){
+        if(st.edit){readEdit(o);o.st='Modificado';o.by='Josué Cabrera';st.edit=false;render();toast('Pedido '+o.id+' modificado. Se avisó al técnico.')}
+        else{st.edit=true;renderDetail()}
+      });
+      var bo=$('#btn-obs');
+      if(bo)bo.addEventListener('click',function(){o.st='Observado';st.edit=false;render();toast('Pedido '+o.id+' observado. Vuelve al técnico.')});
+    }
+  }
+  function readEdit(o){$$('#detail input[data-i]').forEach(function(i){o.l[+i.dataset.i][1]=Math.max(0,+i.value||0)})}
+  var tt;function toast(m){$('#toast-text').textContent=m;$('#toast').classList.add('show');clearTimeout(tt);tt=setTimeout(function(){$('#toast').classList.remove('show')},3200)}
+  function render(){renderRoutes();renderKpis();renderOrders();renderDetail()}
+
+  $('#route-all').addEventListener('click',function(){st.ruta='';st.tab='pendientes';render()});
+  $('#route-search').addEventListener('input',function(e){st.q=e.target.value;renderRoutes()});
+  $('#order-search').addEventListener('input',function(e){st.id=e.target.value.replace(/\D/g,'');renderOrders()});
+  $$('#tabs button').forEach(function(b){b.addEventListener('click',function(){st.tab=b.dataset.tab;renderOrders()})});
+  $('#btn-direct').addEventListener('click',function(){toast('Entrega directa: elija productos e IMEI para '+st.ruta+'.')});
+  render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+# Ejecutar con: mvn spring-boot:run -Dspring-boot.run.profiles=tls
+# Definir TLS_KEY_STORE y TLS_KEY_STORE_PASSWORD antes de iniciar.
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: ${TLS_KEY_STORE}
+    key-store-password: ${TLS_KEY_STORE_PASSWORD}
+    key-store-type: PKCS12
+    enabled-protocols: TLSv1.2,TLSv1.3
+

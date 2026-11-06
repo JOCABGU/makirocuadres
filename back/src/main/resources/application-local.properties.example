@@ -1,0 +1,11 @@
+# Copiar como application-local.properties (en esta misma carpeta) y completar.
+# Alternativa: definir las variables de entorno DB_USERNAME, DB_PASSWORD,
+# SUCURSAL_DB_USERNAME, SUCURSAL_DB_PASSWORD y JWT_SECRET.
+spring.datasource.username=
+spring.datasource.password=
+
+app.sucursal.datasource.username=
+app.sucursal.datasource.password=
+
+# Clave HS256 en Base64 de al menos 32 bytes (p. ej. openssl rand -base64 32).
+app.jwt.secret=

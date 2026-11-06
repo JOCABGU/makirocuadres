@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acceso General · Almacén</title>
+<!-- THEME:FONTS -->
+<link id="theme-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Red+Hat+Mono:wght@400;500;600&display=swap">
+<!-- THEME:TOKENS -->
+<style id="theme">
+:root{
+  --font-body:'Archivo',system-ui,sans-serif;
+  --font-display:'Archivo',system-ui,sans-serif;
+  --font-mono:'Red Hat Mono',ui-monospace,Consolas,monospace;
+  --display-weight:800;
+  --display-tracking:-.02em;
+
+  --bg:#e7e7e2;
+  --surface:#ffffff;
+  --surface-alt:#f4f4f0;
+  --border:#d6d6d0;
+  --border-strong:#a9aaa4;
+  --text:#16191c;
+  --text-muted:#555b61;
+  --text-soft:#898e93;
+
+  --brand:#1e2328;
+  --brand-contrast:#ffffff;
+  --accent:#e8a020;          /* cinta de precinto: solo seleccion y accion principal */
+  --accent-ink:#1e2328;
+  --accent-soft:#fcefd0;
+  --nav-active-bg:#fcefd0;
+  --nav-active-text:#1e2328;
+  --sidebar-bg:#f4f4f0;
+  --sidebar-text:#555b61;
+  --topbar-bg:#1e2328;
+  --topbar-text:#ffffff;
+
+  --login-panel-bg:#1e2328;
+  --login-panel-text:#ffffff;
+  --login-panel-accent:#e8a020;
+
+  --success:#2e7d4f;
+  --success-soft:#eef7f1;
+  --warning:#9a6a12;
+  --warning-soft:#fbf4e2;
+  --danger:#b23a2e;
+  --danger-soft:#fbefed;
+  --info:#2f6db5;
+  --info-soft:#ebf2fa;
+
+  --radius-sm:1px;
+  --radius:2px;
+  --radius-lg:2px;
+  --shadow:0 2px 0 rgba(22,25,28,.25);
+}
+</style>
+<!-- end tokens -->
+<style id="base">
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-width:320px;min-height:100vh;font-family:var(--font-body);color:var(--text);background:var(--bg);font-synthesis:none;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,p,dl,dd,ul{margin:0}
+ul{padding:0;list-style:none}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.num,td.number,.quantity,.value{font-variant-numeric:tabular-nums}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+kbd{display:inline-block;min-width:16px;padding:0 4px;border:1px solid currentColor;border-radius:1px;font:600 .6rem/1.45 var(--font-mono);text-align:center;opacity:.8}
+.ico{width:20px;height:20px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:square;stroke-linejoin:miter}
+.bs,.un{color:var(--text-soft);font-weight:400}
+.bc{display:block;width:100%;height:100%;fill:currentColor;shape-rendering:crispEdges}
+
+/* ===== marca ===== */
+.brand{display:flex;align-items:center;gap:10px;color:var(--brand)}
+.brand-logo{display:block;width:30px;height:24px;flex:0 0 auto;color:currentColor;--mark-accent:var(--accent)}
+.wm{display:flex;flex-direction:column;line-height:1}
+.wm b{font-weight:900;font-stretch:112%;font-size:1rem;letter-spacing:.01em;text-transform:uppercase}
+.wm i{margin-top:3px;font-style:normal;font-weight:500;font-stretch:62%;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;opacity:.75}
+
+/* ===== etiqueta de estanteria (firma) ===== */
+.shelf{display:inline-block;padding:2px 6px 1px;background:var(--brand);color:#fff;font-family:var(--font-display);font-weight:800;font-stretch:75%;font-size:.86rem;letter-spacing:.04em;line-height:1.25;white-space:nowrap;text-align:center}
+.shelf--lg{font-size:1.9rem;padding:4px 12px 3px}
+.shelf--inv{background:#fff;color:var(--brand)}
+
+/* ===== vistas ===== */
+.view{display:none}
+.view.is-active{display:block}
+.view-switch{position:fixed;z-index:500;right:16px;bottom:16px;display:flex;gap:2px;padding:3px;background:#000;font-family:system-ui,sans-serif}
+.view-switch button{padding:6px 12px;border:0;color:rgba(255,255,255,.65);background:transparent;font-size:.7rem;font-weight:600}
+.view-switch button:hover{color:#fff}
+.view-switch button.is-active{color:var(--brand);background:#fff}
+
+/* ===== barra superior ===== */
+.warehouse-page,.dashboard-page{min-height:100vh;background:var(--bg)}
+.topbar{height:52px;display:grid;grid-template-columns:minmax(200px,1fr) minmax(0,520px) minmax(200px,1fr);align-items:center;gap:16px;padding:0 14px 0 12px;background:var(--topbar-bg);color:var(--topbar-text);position:relative;z-index:5}
+.topbar .brand{color:#fff;--mark-accent:var(--accent)}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.cmd{display:flex;align-items:center;gap:10px;width:100%;height:32px;padding:0 10px;border:1px solid rgba(255,255,255,.22);border-radius:var(--radius);background:rgba(255,255,255,.06);color:rgba(255,255,255,.6)}
+.cmd:hover{border-color:rgba(255,255,255,.45)}
+.cmd:focus-within{border-color:#fff;background:#fff;color:var(--text-soft)}
+.cmd input{min-width:0;flex:1;height:100%;border:0;outline:0;background:transparent;color:inherit;font-size:.8rem}
+.cmd:focus-within input{color:var(--text)}
+.cmd input::placeholder{color:rgba(255,255,255,.5)}
+.cmd:focus-within input::placeholder{color:var(--text-soft)}
+.cmd .ico{width:15px;height:15px}
+.topbar-user{display:flex;align-items:center;gap:14px;justify-self:end}
+.topbar-user .who{display:flex;flex-direction:column;line-height:1.25;text-align:right}
+.topbar-user strong{font-size:.78rem;font-weight:600}
+.topbar-user .who span{color:rgba(255,255,255,.6);font-size:.68rem}
+.topbar-user button.logout{padding:5px 0;border:0;border-bottom:1px solid rgba(255,255,255,.4);color:rgba(255,255,255,.8);background:transparent;font-size:.72rem}
+.topbar-user button.logout:hover{color:#fff;border-bottom-color:#fff}
+.mobile-menu{display:none}
+
+/* ===== riel ===== */
+.app{display:grid;grid-template-columns:68px minmax(0,1fr);height:calc(100vh - 52px)}
+.rail{display:flex;flex-direction:column;align-items:stretch;gap:2px;padding:6px 0;background:var(--brand);border-top:1px solid rgba(255,255,255,.12);position:relative;z-index:4}
+.rail-btn{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0 8px;border:0;color:rgba(255,255,255,.55);background:transparent}
+.rail-btn span{font-size:.62rem;font-weight:600;letter-spacing:.02em}
+.rail-btn:hover{color:#fff;background:rgba(255,255,255,.07)}
+.rail-btn.active{color:#fff;background:rgba(255,255,255,.1)}
+.rail-btn.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.rail-btn:focus-visible{outline-color:var(--accent);outline-offset:-3px}
+.rail-btn>b{position:absolute;top:5px;right:12px;font:600 .62rem/1 var(--font-mono);color:var(--accent)}
+.rail-gap{flex:1}
+
+/* ===== paneles ===== */
+.pane{display:flex;min-width:0;min-height:0;flex-direction:column;background:var(--surface);border-right:1px solid var(--border-strong)}
+.pane-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+.pane-head h2{font:var(--display-weight) 1.2rem/1.15 var(--font-display);letter-spacing:var(--display-tracking)}
+.pane-head small{display:block;margin-top:4px;color:var(--text-muted);font-size:.74rem}
+.pane-head small .mono{color:var(--text)}
+.heading-actions{display:flex;align-items:center;gap:8px}
+
+/* ===== botones ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:32px;padding:0 12px;border:1px solid var(--brand);border-radius:var(--radius);color:var(--text);background:transparent;font-size:.76rem;font-weight:600}
+.btn:hover{background:var(--brand);color:#fff}
+.btn--ghost{border-color:var(--border-strong)}
+.btn--success,.btn--primary{border-color:var(--brand);color:var(--accent-ink);background:var(--accent);box-shadow:0 2px 0 var(--brand)}
+.btn--success:hover,.btn--primary:hover{color:var(--accent-ink);background:color-mix(in srgb,var(--accent) 88%,#fff)}
+.btn--success:active,.btn--primary:active{transform:translateY(2px);box-shadow:none}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ===== almacen: split view ===== */
+.split{display:grid;grid-template-columns:216px minmax(360px,456px) minmax(0,1fr);min-height:0;height:100%}
+.routes{background:var(--sidebar-bg)}
+.routes-head{padding:14px 16px 8px;color:var(--text-muted);font-size:.74rem}
+.routes-head strong{display:block;font:var(--display-weight) 1.2rem/1.15 var(--font-display);color:var(--text);letter-spacing:var(--display-tracking)}
+.routes-search{display:flex;align-items:center;gap:7px;margin:0 12px 6px;padding:0 2px;border-bottom:1px solid var(--border-strong);color:var(--text-soft)}
+.routes-search:focus-within{border-bottom-color:var(--brand)}
+.routes-search .ico{width:14px;height:14px}
+.routes-search input{width:100%;height:30px;border:0;outline:0;background:transparent;color:var(--text);font-size:.76rem}
+.seller-all,.routes-list>button{display:flex;align-items:center;justify-content:space-between;gap:8px;border:0;border-left:4px solid transparent;color:var(--text-muted);background:transparent;text-align:left}
+.seller-all{width:100%;min-height:36px;padding:0 14px 0 12px;font-size:.78rem;font-weight:700}
+.seller-all:hover,.routes-list>button:hover{background:rgba(22,25,28,.05)}
+.seller-all.active,.routes-list>button.active{border-left-color:var(--accent);color:var(--text);background:var(--accent-soft)}
+.seller-all b,.routes-list>button>b{font:600 .72rem var(--font-mono);color:var(--text)}
+.routes-label{margin:14px 16px 4px;color:var(--text-soft);font-size:.7rem}
+.routes-list{min-height:0;flex:1;overflow-y:auto;padding-bottom:12px}
+.routes-list>button{width:100%;min-height:44px;padding:5px 14px 5px 10px;gap:10px;justify-content:flex-start}
+.routes-list>button>b{margin-left:auto}
+.routes-list>button .shelf{min-width:42px}
+.routes-list>button>div{min-width:0}
+.routes-list small{display:block;overflow:hidden;color:var(--text-muted);font-size:.74rem;white-space:nowrap;text-overflow:ellipsis}
+
+.summary{padding:8px 16px;border-bottom:1px solid var(--border);color:var(--text-muted);font-size:.72rem}
+.summary .mono{color:var(--text)}
+.order-toolbar{display:flex;align-items:center;gap:8px;padding:0 12px 0 6px;border-bottom:1px solid var(--border)}
+.warehouse-order-tabs{display:flex}
+.warehouse-order-tabs button{display:flex;align-items:baseline;gap:5px;min-height:36px;padding:0 10px;border:0;border-bottom:3px solid transparent;color:var(--text-muted);background:transparent;font-size:.78rem;font-weight:600}
+.warehouse-order-tabs button:hover{color:var(--text)}
+.warehouse-order-tabs button.active{color:var(--text);border-bottom-color:var(--brand)}
+.warehouse-order-tabs button b{font:500 .66rem var(--font-mono);color:var(--text-soft)}
+.order-id-search{display:flex;align-items:center;gap:4px;min-width:0;flex:1;max-width:130px;margin-left:auto;border-bottom:1px solid var(--border-strong);color:var(--text-soft);font:500 .72rem var(--font-mono)}
+.order-id-search:focus-within{border-bottom-color:var(--brand)}
+.order-id-search input{min-width:0;width:100%;height:28px;border:0;outline:0;background:transparent;color:var(--text);font-size:.72rem}
+
+.o-list{min-height:0;flex:1;overflow-y:auto}
+.o-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:12px;padding:10px 14px 10px 10px;border-bottom:1px solid var(--border);border-left:4px solid transparent;cursor:pointer}
+.o-row:hover{background:var(--surface-alt)}
+.o-row.is-selected{border-left-color:var(--accent);background:var(--accent-soft)}
+.o-row:focus-visible{outline-offset:-2px}
+.o-main{display:flex;min-width:0;flex-direction:column;gap:4px}
+.o-main strong{overflow:hidden;font-size:.84rem;font-weight:600;white-space:nowrap;text-overflow:ellipsis}
+.o-code{display:flex;align-items:center;gap:7px;font:500 .72rem var(--font-mono);color:var(--text)}
+.o-code .bcw{width:58px;height:13px;color:var(--brand)}
+.o-side{display:flex;flex-direction:column;align-items:flex-end;gap:3px;font:400 .68rem var(--font-mono);color:var(--text-soft)}
+.o-side .un{font:inherit}
+.stt{display:inline-flex;align-items:center;gap:6px;color:var(--text);font:600 .74rem var(--font-body);white-space:nowrap}
+.stt i{position:relative;width:9px;height:9px;border:1.5px solid var(--brand);background:transparent}
+.stt--approved i{background:var(--brand)}
+.stt--modified i{background:linear-gradient(90deg,var(--brand) 50%,transparent 50%)}
+.stt--confirmed i{background:var(--brand)}
+.stt--confirmed i::after{content:"";position:absolute;left:1px;top:-1px;width:3px;height:5px;border:solid #fff;border-width:0 1.5px 1.5px 0;transform:rotate(40deg)}
+.stt--observed{color:var(--danger)}
+.stt--observed i{border-color:var(--danger);border-style:dashed}
+.stt--rejected{color:var(--danger);text-decoration:line-through;text-decoration-thickness:1px}
+.stt--rejected i{border-color:var(--danger);background:var(--danger)}
+.orders-message{padding:30px 16px;color:var(--text-muted);text-align:center;font-size:.78rem}
+.statusbar{display:flex;justify-content:space-between;gap:10px;padding:7px 16px;border-top:1px solid var(--border-strong);background:var(--surface-alt);color:var(--text-soft);font:.64rem var(--font-mono)}
+.statusbar kbd{margin:0 1px;color:var(--text-muted)}
+
+/* ===== detalle: ticket termico ===== */
+.detail{display:flex;min-width:0;min-height:0;flex-direction:column;background:var(--bg);border-right:0}
+.detail>.orders-message{margin:auto}
+.detail-head{padding:12px 20px;border-bottom:1px solid var(--border-strong);background:var(--surface)}
+.dh-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.detail-head h3{display:flex;align-items:center;gap:10px;font:var(--display-weight) 1.15rem var(--font-display);letter-spacing:var(--display-tracking)}
+.approval-controls{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.approval-controls label{display:flex;flex-direction:column;gap:3px;color:var(--text-soft);font-size:.66rem;font-weight:600}
+.approval-controls input{height:30px;padding:0 6px;border:0;border-bottom:1px solid var(--border-strong);background:transparent;font:500 .76rem var(--font-mono)}
+.approval-controls input:focus{outline:0;border-bottom-color:var(--brand)}
+.approval-controls>div{display:flex;gap:8px}
+.detail-content{min-height:0;flex:1;overflow-y:auto;padding:22px 20px 34px}
+.ticket{position:relative;width:min(380px,100%);margin:0 auto;padding:20px 20px 24px;background:#fff;border:1px solid var(--border);border-bottom:0;color:var(--text);font-family:var(--font-mono);font-size:.74rem;line-height:1.5;font-variant-numeric:tabular-nums}
+.ticket::after{content:"";position:absolute;left:-1px;right:-1px;top:100%;height:9px;background:linear-gradient(135deg,#fff 50%,transparent 50%) 0 0/12px 9px,linear-gradient(225deg,#fff 50%,transparent 50%) 0 0/12px 9px;background-repeat:repeat-x}
+.tk-head{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.tk-head strong{font:800 1.05rem var(--font-display);font-stretch:75%;letter-spacing:.14em}
+.tk-head span.tk-sub{color:var(--text-soft);font-size:.68rem}
+.tk-sep{margin:11px 0;border:0;border-top:1px dashed var(--border-strong)}
+.tk-bc{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tk-bc .bcw{width:100%;height:42px;color:var(--brand)}
+.tk-bc--foot .bcw{height:54px}
+.tk-bc span{font-size:.7rem;letter-spacing:.2em}
+.tk-meta{display:grid;gap:2px}
+.tk-meta>div{display:flex;justify-content:space-between;gap:12px}
+.tk-meta dt{color:var(--text-soft)}
+.tk-meta dd{min-width:0;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tk-line{padding:3px 0}
+.tk-line .n{display:flex;justify-content:space-between;gap:8px;font-weight:500}
+.tk-line .n .un{font-size:.66rem}
+.tk-calc{display:flex;align-items:baseline;gap:6px;color:var(--text-muted)}
+.tk-calc .lead{flex:1;min-width:10px;border-bottom:1px dotted var(--border-strong);transform:translateY(-3px)}
+.tk-calc .st{min-width:78px;text-align:right;color:var(--text)}
+.tk-line input{width:64px;height:24px;padding:0 6px;border:1px solid var(--brand);background:var(--accent-soft);font:600 .74rem var(--font-mono);text-align:right}
+.tk-line input:focus{outline:2px solid var(--brand);outline-offset:1px}
+.tk-tot{display:flex;justify-content:space-between;gap:10px}
+.tk-tot--big{margin-top:3px;font-weight:700;font-size:1.02rem}
+.tk-note{color:var(--text-muted);font-family:var(--font-body);font-size:.78rem;line-height:1.45}
+.tk-note b{display:block;margin-bottom:1px;color:var(--text);font:600 .68rem var(--font-mono)}
+.tk-stamp{margin-top:2px;font-weight:600}
+.tk-stamp--bad{color:var(--danger)}
+.toast{position:fixed;z-index:300;top:62px;right:16px;display:none;width:min(320px,calc(100vw - 28px));flex-direction:column;gap:3px;padding:11px 14px;border:1px solid var(--brand);border-left:6px solid var(--accent);background:#fff;box-shadow:var(--shadow)}
+.toast.show{display:flex}
+.toast span{color:var(--text-soft);font:500 .64rem var(--font-mono)}
+.toast strong{font-size:.82rem;font-weight:600}
+
+/* ===== tecnico: ticket de carga ===== */
+.t-split{display:grid;grid-template-columns:minmax(0,1fr) 320px;height:100%;min-height:0}
+.t-main{min-width:0;overflow-y:auto;border-right:1px solid var(--border-strong);background:var(--bg)}
+.t-side{min-width:0;overflow-y:auto;background:var(--surface)}
+.workspace-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:18px 24px 12px}
+.workspace-heading h1{font:var(--display-weight) 1.7rem/1.1 var(--font-display);letter-spacing:var(--display-tracking)}
+.workspace-heading>div>span{display:block;margin-top:5px;color:var(--text-muted);font-size:.8rem}
+.date-chip{color:var(--text-soft);font:500 .68rem var(--font-mono)}
+.route-view-switch{display:flex;padding:0 18px;border-bottom:1px solid var(--border-strong);flex-wrap:wrap}
+.route-view-switch button{display:flex;align-items:center;gap:7px;min-height:38px;padding:0 12px;border:0;border-bottom:3px solid transparent;color:var(--text-muted);background:transparent;font-size:.78rem;font-weight:600}
+.route-view-switch button:hover{color:var(--text)}
+.route-view-switch button.active{border-bottom-color:var(--brand);color:var(--text)}
+.route-view-switch .ico{width:16px;height:16px}
+.balance-card{padding:26px 20px 40px}
+.balance-card .ticket{width:min(400px,100%)}
+.t-side-block{padding:20px 20px 18px;border-bottom:1px solid var(--border)}
+.t-id{display:flex;align-items:center;gap:14px}
+.t-id strong{display:block;font:var(--display-weight) 1.3rem/1.15 var(--font-display);letter-spacing:var(--display-tracking)}
+.t-id small{display:block;margin-top:3px;color:var(--text-muted);font-size:.76rem}
+.t-facts{margin-top:16px;border-top:1px solid var(--border)}
+.t-facts>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:.78rem}
+.t-facts dt{color:var(--text-soft)}
+.t-facts dd{font-weight:600;text-align:right}
+.t-count{padding:18px 20px;border-bottom:1px solid var(--border)}
+.t-count p{color:var(--text-muted);font-size:.78rem;line-height:1.5}
+.t-count .big{display:block;margin-bottom:4px;font:800 2.5rem/1 var(--font-display);font-stretch:75%;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.t-count .big .bs{font-size:1rem;font-weight:500;margin-right:4px}
+.t-cta{padding:18px 20px}
+.t-cta .btn{width:100%;min-height:40px}
+
+/* ===== login: escanear credencial ===== */
+.login-page{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;min-height:100svh;padding:28px 16px;color:var(--login-panel-text);background:var(--login-panel-bg)}
+.login-page>.brand{color:#fff;--mark-accent:var(--accent)}
+.login-page .brand-logo{width:38px;height:30px}
+.login-page .wm b{font-size:1.2rem}
+.login-card{width:min(468px,100%);background:#fff;color:var(--text);border-radius:2px;position:relative}
+.login-card::before,.login-card::after{content:"";position:absolute;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--login-panel-bg)}
+.login-card::before{left:-7px}.login-card::after{right:-7px}
+.lb-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:20px 24px 14px;background:var(--brand);color:#fff;border-radius:2px 2px 0 0}
+.lb-title{font:900 2.5rem/.95 var(--font-display);font-stretch:62%;letter-spacing:.02em;text-transform:uppercase}
+.lb-code{font:500 .7rem var(--font-mono);color:rgba(255,255,255,.65);white-space:nowrap}
+.lb-scan{padding:16px 24px 12px;border-bottom:2px dashed var(--border-strong)}
+.lb-scan .bcw{width:100%;height:58px;color:var(--brand)}
+.lb-scan p{display:flex;justify-content:space-between;margin-top:6px;font:500 .72rem var(--font-mono);color:var(--text-muted);letter-spacing:.14em}
+.login-form-shell{width:100%;padding:6px 24px 20px}
+.login-card form{margin-top:4px}
+.login-card label.lbl{display:block;margin:14px 0 6px;color:var(--text-muted);font-size:.74rem;font-weight:600}
+.login-roles{display:grid;margin-bottom:4px}
+.login-role{position:relative;display:block;margin:0;cursor:pointer;border-bottom:1px solid var(--border)}
+.login-role input{position:absolute;opacity:0;pointer-events:none}
+.login-role span{display:grid;grid-template-columns:34px minmax(0,1fr);column-gap:10px;align-items:center;padding:8px 10px 8px 8px;border-left:4px solid transparent}
+.login-role em{grid-row:1/3;font:800 1.9rem/1 var(--font-display);font-stretch:75%;font-style:normal;color:var(--text-soft);text-align:center}
+.login-role b{font-size:.95rem;font-weight:700}
+.login-role small{color:var(--text-muted);font-size:.76rem}
+.login-role:hover span{background:var(--surface-alt)}
+.login-role input:checked+span{border-left-color:var(--accent);background:var(--accent-soft)}
+.login-role input:checked+span em{color:var(--brand)}
+.login-role input:focus-visible+span{outline:2px solid var(--brand);outline-offset:-2px}
+.field{position:relative;display:flex;align-items:center;min-height:38px;border-bottom:1px solid var(--border-strong)}
+.field:hover{border-bottom-color:var(--text-soft)}
+.field:focus-within{border-bottom-color:var(--brand)}
+.field>.login-field-icon{display:grid;place-items:center;width:28px;flex:0 0 auto;color:var(--text-soft)}
+.login-field-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:square}
+.field select{min-width:0;flex:1;height:36px;border:0;outline:0;padding:0 26px 0 0;color:var(--text);background:transparent;font-size:.86rem;cursor:pointer;appearance:none;-webkit-appearance:none}
+.field .chev{position:absolute;right:4px;width:10px;height:10px;fill:none;stroke:var(--text-soft);stroke-width:2;pointer-events:none}
+.primary-button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:46px;margin-top:20px;padding:0 16px;border:1px solid var(--brand);border-radius:var(--radius);color:var(--accent-ink);background:var(--accent);box-shadow:0 3px 0 var(--brand);font-size:.92rem;font-weight:800}
+.primary-button:hover{background:color-mix(in srgb,var(--accent) 88%,#fff)}
+.primary-button:active{transform:translateY(3px);box-shadow:none}
+.primary-button b{font:600 .8rem var(--font-mono)}
+.login-foot{max-width:468px;color:rgba(255,255,255,.55);font:.68rem/1.6 var(--font-mono);text-align:center}
+
+/* ===== menu movil ===== */
+.drawer-backdrop{display:none}
+.sidebar-label{margin:0 12px 10px;color:var(--text-soft);font-size:.7rem}
+.nav-item{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:0;border-left:4px solid transparent;color:var(--sidebar-text);background:transparent;font-size:.84rem;text-align:left}
+.nav-item:hover{color:var(--text);background:var(--surface-alt)}
+.nav-item--active,.nav-item--active:hover{color:var(--nav-active-text);background:var(--nav-active-bg);border-left-color:var(--accent);font-weight:700}
+.nav-item .ico{width:18px;height:18px}
+@media(max-width:1180px){
+  .split{grid-template-columns:190px minmax(320px,400px) minmax(0,1fr)}
+  .t-split{grid-template-columns:minmax(0,1fr) 290px}
+}
+@media(max-width:900px){
+  .topbar{grid-template-columns:auto minmax(0,1fr) auto;gap:10px}
+  .app{display:block;height:auto}
+  .rail{display:none}
+  .split,.t-split{display:block;height:auto}
+  .pane,.t-main{border-right:0;border-bottom:1px solid var(--border-strong)}
+  .routes .routes-list{max-height:220px}
+  .o-list{max-height:400px}
+  .detail{min-height:300px}
+  .detail-content{overflow:visible}
+  .t-main,.t-side{overflow:visible}
+  .mobile-menu{display:flex;flex-direction:column;justify-content:center;gap:4px;width:30px;height:30px;padding:7px;border:0;background:transparent}
+  .mobile-menu span{display:block;width:16px;height:2px;background:#fff}
+  .topbar-brand .brand{display:none}
+  .drawer-backdrop.open{display:block;position:fixed;z-index:400;inset:0;background:rgba(30,35,40,.6)}
+  .drawer{position:fixed;z-index:410;top:0;bottom:0;left:0;width:270px;max-width:86vw;padding:20px 0;background:var(--surface);border-right:1px solid var(--border-strong);transform:translateX(-100%);transition:transform .2s}
+  .drawer.open{transform:none}
+  .drawer .brand{margin:0 16px 22px}
+}
+@media(max-width:580px){
+  .topbar{padding:0 8px}
+  .topbar-user .who,.topbar-user button.logout,.cmd kbd{display:none}
+  .pane-head,.workspace-heading{flex-wrap:wrap}
+  .date-chip{display:none}
+  .detail-head,.detail-content{padding-left:14px;padding-right:14px}
+  .approval-controls,.approval-controls>div{width:100%}
+  .approval-controls .btn{flex:1}
+  .balance-card{padding:20px 12px 36px}
+  .login-card::before,.login-card::after{display:none}
+  .lb-title{font-size:2.05rem}
+  .lb-top,.lb-scan,.login-form-shell{padding-left:16px;padding-right:16px}
+  .view-switch{right:10px;bottom:10px}
+}
+@media(min-width:901px){.drawer,.drawer-backdrop{display:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<!-- THEME:MARK -->
+<svg style="display:none" aria-hidden="true"><symbol id="brand-mark" viewBox="0 0 40 32"><path fill="currentColor" d="M0 0h4v32H0zM7 0h2v32H7zM12 0h5v32h-5zM20 0h2v32h-2zM25 0h3v32h-3zM31 0h2v32h-2z"/><path fill="var(--mark-accent,currentColor)" d="M36 0h4v32h-4z"/></symbol>
+<symbol id="i-orders" viewBox="0 0 24 24"><path d="M3 5h4v4H3zM3 15h4v4H3zM11 7h10M11 17h10"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 12l3 3 5-6"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><path d="M5 11h14v9H5zM8 11V7a4 4 0 018 0v4"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M7 3h10v18H7zM7 17h10M11 19.5h2"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M6 20v-8M11 20V5M16 20v-11M21 20v-5"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM9.5 9.5a2.5 2.5 0 115 0c0 1.5-2.5 2-2.5 3.5M12 17v.01"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M8 8a4 4 0 118 0 4 4 0 01-8 0zM4 21v-3l4-2h8l4 2v3z"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M10 4H4v16h6M9 12h11M16 8l4 4-4 4"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><path d="M4 11a7 7 0 1114 0 7 7 0 01-14 0zM16 16l5 5"/></symbol></svg>
+
+<!-- ========== LOGIN ========== -->
+<div class="view is-active" id="view-login">
+  <main class="login-page">
+    <div class="brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="wm"><b>Acceso</b><i>General</i></span></div>
+    <section class="login-card">
+      <div class="lb-top"><span class="lb-title" id="lb-title">Acceso Almacén</span><span class="lb-code" id="lb-code">AG-01</span></div>
+      <div class="lb-scan"><div class="bcw" id="lb-bc" style="height:58px"></div><p><span id="lb-num">0 0 0 1 · 2 0 1 0 2 6</span><span>1–4</span></p></div>
+      <div class="login-form-shell">
+        <form id="login-form" novalidate>
+          <label class="lbl">Escanee su credencial o elija perfil (teclas 1 a 4)</label>
+          <div class="login-roles" role="radiogroup" aria-label="Perfil de acceso">
+            <label class="login-role"><input type="radio" name="lg-role" value="almacen" checked><span><em>1</em><b>Almacén</b><small>Pedidos, cuadres y cierre del día</small></span></label>
+            <label class="login-role"><input type="radio" name="lg-role" value="tecnico"><span><em>2</em><b>Técnico</b><small>Mi carga, mis pedidos y mi cuadre</small></span></label>
+            <label class="login-role"><input type="radio" name="lg-role" value="cont-depositos"><span><em>3</em><b>Contabilidad</b><small>Control de depósitos</small></span></label>
+            <label class="login-role"><input type="radio" name="lg-role" value="sis-reinicio"><span><em>4</em><b>Sistemas</b><small>Usuarios y claves</small></span></label>
+          </div>
+          <label class="lbl" for="lg-branch">Sucursal</label>
+          <div class="field"><span class="login-field-icon"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 13h2v3H9zM13 13h2v3h-2z"/></svg></span><select id="lg-branch"><option value="">Elija sucursal</option><option>Central</option><option>Norte</option><option>Sur</option><option>El Alto</option></select><svg class="chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <button class="primary-button" type="submit"><span>Ingresar</span> <b>↵ Enter</b></button>
+        </form>
+      </div>
+    </section>
+    <p class="login-foot">Soporte: interno 214 · v2.14 · lun 20 oct, 08:05</p>
+  </main>
+</div>
+
+<!-- ========== ALMACEN ========== -->
+<div class="view" id="view-almacen">
+  <main class="warehouse-page">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <button class="mobile-menu" type="button" aria-label="Abrir menú" data-drawer="drawer-alm"><span></span><span></span><span></span></button>
+        <div class="brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="wm"><b>Acceso</b><i>General</i></span></div>
+      </div>
+      <label class="cmd"><svg class="ico"><use href="#i-search"/></svg><input id="cmd-input" type="search" placeholder="Pedido, ruta o IMEI…" autocomplete="off"><kbd>⌘K</kbd></label>
+      <div class="topbar-user">
+        <div class="who"><strong>Josué Cabrera</strong><span>Almacén Central</span></div>
+        <button class="logout" type="button">Salir</button>
+      </div>
+    </header>
+
+    <div class="app">
+      <nav class="rail" aria-label="Módulos de almacén">
+        <button class="rail-btn active" type="button" aria-label="Pedidos"><svg class="ico"><use href="#i-orders"/></svg><span>Pedidos</span><b id="mod-pend">0</b></button>
+        <button class="rail-btn" type="button" aria-label="Cuadres"><svg class="ico"><use href="#i-check"/></svg><span>Cuadres</span></button>
+        <button class="rail-btn" type="button" aria-label="Cierre de almacén"><svg class="ico"><use href="#i-lock"/></svg><span>Cierre</span></button>
+        <button class="rail-btn" type="button" aria-label="Dispositivos"><svg class="ico"><use href="#i-phone"/></svg><span>Equipos</span></button>
+        <button class="rail-btn" type="button" aria-label="Estadísticas"><svg class="ico"><use href="#i-chart"/></svg><span>Cifras</span></button>
+        <span class="rail-gap"></span>
+        <button class="rail-btn" type="button" aria-label="Ayuda"><svg class="ico"><use href="#i-help"/></svg><span>Ayuda</span></button>
+      </nav>
+
+      <div class="split">
+        <aside class="pane routes seller-sidebar">
+          <div class="routes-head"><strong>Rutas</strong>8 técnicos en calle</div>
+          <label class="routes-search"><svg class="ico"><use href="#i-search"/></svg><input id="route-search" type="search" placeholder="Ruta o técnico…"></label>
+          <button class="seller-all active" id="route-all" type="button"><span>Todas las rutas</span><b id="route-all-count">0</b></button>
+          <p class="routes-label">Por técnico</p>
+          <div class="routes-list" id="route-list"></div>
+        </aside>
+
+        <section class="pane warehouse-orders">
+          <div class="pane-head">
+            <div><h2 id="orders-title">Despacho de hoy</h2><small id="orders-sub"></small></div>
+            <div class="heading-actions"><button class="btn btn--success" id="btn-direct" type="button" style="display:none">+ Entrega directa</button></div>
+          </div>
+          <div class="summary" id="kpis"></div>
+          <div class="order-toolbar">
+            <div class="warehouse-order-tabs" id="tabs">
+              <button class="active" data-tab="pendientes" type="button">Por aprobar <b id="tab-pend">0</b></button>
+              <button data-tab="todos" type="button">Todos</button>
+              <button data-tab="confirmados" type="button">Confirmados</button>
+            </div>
+            <div class="order-id-search"><span>#</span><input id="order-search" type="search" inputmode="numeric" placeholder="Nº pedido"></div>
+          </div>
+          <div class="o-list" id="orders-body"></div>
+          <div class="orders-message" id="orders-empty" style="display:none">Ningún pedido con ese filtro.</div>
+          <div class="statusbar"><span id="orders-result"></span><span><kbd>J</kbd><kbd>K</kbd> mover · <kbd>A</kbd> aprobar · <kbd>M</kbd> modificar</span></div>
+        </section>
+
+        <section class="detail" id="detail"></section>
+      </div>
+    </div>
+  </main>
+  <div class="toast" id="toast"><span>Nota de entrega</span><strong id="toast-text"></strong></div>
+</div>
+
+<!-- ========== TECNICO ========== -->
+<div class="view" id="view-tecnico">
+  <div class="dashboard-page">
+    <header class="topbar">
+      <div class="topbar-brand">
+        <button class="mobile-menu" type="button" aria-label="Abrir menú" data-drawer="drawer-tec"><span></span><span></span><span></span></button>
+        <div class="brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="wm"><b>Acceso</b><i>General</i></span></div>
+      </div>
+      <label class="cmd"><svg class="ico"><use href="#i-search"/></svg><input type="search" placeholder="Pedido o IMEI…" autocomplete="off"><kbd>⌘K</kbd></label>
+      <div class="topbar-user">
+        <div class="who"><strong>Juan Pérez</strong><span>Técnico · Central</span></div>
+        <button class="logout" type="button">Salir</button>
+      </div>
+    </header>
+    <div class="app">
+      <nav class="rail" aria-label="Menú principal">
+        <button class="rail-btn active" type="button" aria-label="Mi carga"><svg class="ico"><use href="#i-grid"/></svg><span>Mi carga</span></button>
+        <button class="rail-btn" type="button" aria-label="Mi cuadre"><svg class="ico"><use href="#i-check"/></svg><span>Cuadre</span></button>
+        <button class="rail-btn" type="button" aria-label="Mi perfil"><svg class="ico"><use href="#i-user"/></svg><span>Perfil</span></button>
+        <span class="rail-gap"></span>
+        <button class="rail-btn" type="button" aria-label="Ayuda"><svg class="ico"><use href="#i-help"/></svg><span>Ayuda</span></button>
+      </nav>
+      <div class="t-split">
+        <section class="t-main">
+          <div class="workspace-heading">
+            <div><h1>Carga de la ruta</h1><span>Lo que lleva Juan Pérez desde la salida a ruta.</span></div>
+            <div class="date-chip">lun 20 oct, 07:40</div>
+          </div>
+          <nav class="route-view-switch" aria-label="Secciones de la ruta">
+            <button class="active" type="button"><svg class="ico"><use href="#i-grid"/></svg> Mi carga</button>
+            <button type="button"><svg class="ico"><use href="#i-orders"/></svg> Pedidos</button>
+            <button type="button"><svg class="ico"><use href="#i-lock"/></svg> Depósitos</button>
+            <button type="button"><svg class="ico"><use href="#i-check"/></svg> Cuadre</button>
+          </nav>
+          <section class="balance-card">
+            <article class="ticket">
+              <header class="tk-head"><span class="shelf shelf--lg">R-01</span><strong>TICKET DE CARGA</strong><span class="tk-sub">Salida a ruta · lun 20 oct, 07:40</span></header>
+              <hr class="tk-sep">
+              <dl class="tk-meta"><div><dt>Técnico</dt><dd>Juan Pérez</dd></div><div><dt>Sucursal</dt><dd>Central</dd></div><div><dt>Entregó</dt><dd>Josué Cabrera</dd></div></dl>
+              <hr class="tk-sep">
+              <div class="tk-line"><div class="n"><span>Saldo Tigo Money</span></div><div class="tk-calc"><span>1 cuenta</span><span class="lead"></span><span class="st"><span class="bs">Bs</span> 4.350,00</span></div></div>
+              <div class="tk-line"><div class="n"><span>Chip prepago</span></div><div class="tk-calc"><span>37 <span class="un">u.</span> × 10,00</span><span class="lead"></span><span class="st">370,00</span></div></div>
+              <div class="tk-line"><div class="n"><span>Tarjeta T10</span></div><div class="tk-calc"><span>85 <span class="un">u.</span> × 10,00</span><span class="lead"></span><span class="st">850,00</span></div></div>
+              <div class="tk-line"><div class="n"><span>Tarjeta T20</span></div><div class="tk-calc"><span>61 <span class="un">u.</span> × 20,00</span><span class="lead"></span><span class="st">1.220,00</span></div></div>
+              <div class="tk-line"><div class="n"><span>Tarjeta T50</span></div><div class="tk-calc"><span>24 <span class="un">u.</span> × 50,00</span><span class="lead"></span><span class="st">1.200,00</span></div></div>
+              <hr class="tk-sep">
+              <div class="tk-tot"><span>Unidades</span><span>207 <span class="un">u.</span></span></div>
+              <div class="tk-tot tk-tot--big"><span>TOTAL</span><span><span class="bs">Bs</span> 7.990,00</span></div>
+              <hr class="tk-sep">
+              <p class="tk-note"><b>Nota</b>Faltan 3 T10 que quedaron en el lote de la mañana; se completa en la próxima reposición.</p>
+              <hr class="tk-sep">
+              <div class="tk-bc tk-bc--foot"><div class="bcw" data-bc="R01-20102026-CARGA"></div><span>R01 · 201026 · 0740</span></div>
+            </article>
+          </section>
+        </section>
+        <aside class="t-side">
+          <section class="t-side-block">
+            <div class="t-id"><span class="shelf shelf--lg">R-01</span><div><strong>Juan Pérez</strong><small>Sucursal Central</small></div></div>
+            <dl class="t-facts">
+              <div><dt>Salió a ruta</dt><dd class="mono">07:40</dd></div>
+              <div><dt>Último pedido</dt><dd class="mono">#1845 · por aprobar</dd></div>
+              <div><dt>Cuadre</dt><dd class="mono">dom 19 · sin diferencia</dd></div>
+            </dl>
+          </section>
+          <section class="t-count">
+            <span class="big"><span class="bs">Bs</span>7.990</span>
+            <p>en la carga de hoy: 207 unidades más Bs 4.350 de saldo Tigo Money.</p>
+          </section>
+          <div class="t-cta"><button class="btn btn--primary" type="button">Hacer pedido</button></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- drawers moviles -->
+<div class="drawer-backdrop" id="drawer-backdrop"></div>
+<aside class="drawer" id="drawer-alm">
+  <div class="brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="wm"><b>Acceso</b><i>Almacén</i></span></div>
+  <button class="nav-item nav-item--active" type="button"><svg class="ico"><use href="#i-orders"/></svg> Pedidos</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-check"/></svg> Cuadres</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-lock"/></svg> Cierre de almacén</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-phone"/></svg> Equipos</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-chart"/></svg> Cifras</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-out"/></svg> Salir</button>
+</aside>
+<aside class="drawer" id="drawer-tec">
+  <div class="brand"><svg class="brand-logo"><use href="#brand-mark"/></svg><span class="wm"><b>Acceso</b><i>Técnico</i></span></div>
+  <button class="nav-item nav-item--active" type="button"><svg class="ico"><use href="#i-grid"/></svg> Mi carga</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-check"/></svg> Cuadre</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-user"/></svg> Perfil</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-help"/></svg> Ayuda</button>
+  <button class="nav-item" type="button"><svg class="ico"><use href="#i-out"/></svg> Salir</button>
+</aside>
+
+<div class="view-switch" role="tablist" aria-label="Cambiar vista del mock">
+  <button type="button" data-view="login" class="is-active">Login</button>
+  <button type="button" data-view="almacen">Almacén</button>
+  <button type="button" data-view="tecnico">Técnico</button>
+</div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  function group(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.')}
+  var int={format:function(n){return group(Math.round(n))}};
+  var fmt={format:function(n){var f=Math.abs(n).toFixed(2).split('.');return (n<0?'-':'')+group(f[0])+','+f[1]}};
+
+  /* --- codigo de barras simulado (estilo Code128: inicio, simbolos de 11 modulos, parada) --- */
+  function bars(text){
+    var h=5381,i,j,k;
+    for(i=0;i<text.length;i++)h=((h*33)^text.charCodeAt(i))>>>0;
+    function rnd(){h=(h*1664525+1013904223)>>>0;return h/4294967296}
+    var seq=[[2,1,1,2,1,4]], n=text.length+2;
+    for(k=0;k<n;k++){var w=[1,1,1,1,1,1],rem=5;while(rem>0){j=Math.floor(rnd()*6);if(w[j]<4){w[j]++;rem--}}seq.push(w)}
+    seq.push([2,3,3,1,1,1,2]);
+    var x=10,r='';
+    seq.forEach(function(p){p.forEach(function(wd,ix){if(ix%2===0)r+='<rect x="'+x+'" y="0" width="'+wd+'" height="10"/>';x+=wd})});
+    return '<svg class="bc" viewBox="0 0 '+(x+10)+' 10" preserveAspectRatio="none" aria-hidden="true">'+r+'</svg>';
+  }
+  function fillBc(root){$$('[data-bc]',root).forEach(function(el){el.innerHTML=bars(el.dataset.bc)})}
+
+  /* --- conmutador de vistas --- */
+  function show(v){
+    $$('.view').forEach(function(e){e.classList.toggle('is-active',e.id==='view-'+v)});
+    $$('.view-switch button').forEach(function(b){b.classList.toggle('is-active',b.dataset.view===v)});
+    closeDrawer();
+    try{history.replaceState(null,'','#'+v)}catch(e){}
+    window.scrollTo(0,0);
+  }
+  $$('.view-switch button').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.view)})});
+  var h=(location.hash||'').slice(1); if(['login','almacen','tecnico'].indexOf(h)>-1) show(h);
+
+  /* --- login: etiqueta de acceso --- */
+  var ROLE={almacen:['Acceso Almacén','AG-01'],tecnico:['Acceso Técnico','AG-02'],'cont-depositos':['Acceso Contabilidad','AG-03'],'sis-reinicio':['Acceso Sistemas','AG-04']};
+  function updateLabel(){
+    var r=$('input[name="lg-role"]:checked'), v=r?r.value:'almacen', b=$('#lg-branch').value||'SIN-SUC';
+    $('#lb-title').textContent=ROLE[v][0]; $('#lb-code').textContent=ROLE[v][1];
+    $('#lb-bc').innerHTML=bars(ROLE[v][1]+'-'+b);
+    $('#lb-num').textContent='0 0 0 '+ROLE[v][1].slice(-1)+' · 2 0 1 0 2 6';
+  }
+  $$('input[name="lg-role"]').forEach(function(r){r.addEventListener('change',updateLabel)});
+  $('#lg-branch').addEventListener('change',updateLabel);
+  $('#login-form').addEventListener('submit',function(e){e.preventDefault();var r=$('input[name="lg-role"]:checked');var v=r?r.value:'almacen';show(document.getElementById('view-'+v)?v:'almacen')});
+  $$('.topbar-user .logout').forEach(function(b){b.addEventListener('click',function(){show('login')})});
+
+  /* --- drawers --- */
+  function closeDrawer(){$$('.drawer').forEach(function(d){d.classList.remove('open')});$('#drawer-backdrop').classList.remove('open')}
+  $$('.mobile-menu').forEach(function(b){b.addEventListener('click',function(){$('#'+b.dataset.drawer).classList.add('open');$('#drawer-backdrop').classList.add('open')})});
+  $('#drawer-backdrop').addEventListener('click',closeDrawer);
+
+  /* --- almacen: datos --- */
+  var routes=[
+    ['R-01','Juan Pérez'],['R-02','María Fernanda Quispe Mamani'],['R-03','Carlos Mamani'],['R-04','Lucía Flores'],
+    ['R-05','Diego Choque'],['R-06','Ana Gutiérrez'],['R-07','Rodrigo Vargas'],['R-08','Paola Rojas']
+  ];
+  var P={tm:['Saldo Tigo Money',1],chip:['Chip prepago',10],t10:['Tarjeta T10',10],t20:['Tarjeta T20',20],t50:['Tarjeta T50',50]};
+  var orders=[
+    {id:1851,ruta:'R-06',tec:'Ana Gutiérrez',reg:'20/10/2026 09:42',ent:'',st:'Pendiente',obs:'Reposición semanal de tarjetas para la ruta.',l:[['t10',60],['t20',40]]},
+    {id:1848,ruta:'R-08',tec:'Paola Rojas',reg:'20/10/2026 09:15',ent:'',st:'Pendiente',obs:'Abrimos tres puntos nuevos en la zona de la feria, necesito chips.',l:[['chip',115],['t10',50]]},
+    {id:1845,ruta:'R-01',tec:'Juan Pérez',reg:'20/10/2026 08:30',ent:'',st:'Pendiente',obs:'Saldo bajo de Tigo Money al cierre de ayer.',l:[['tm',3000],['t10',37]]},
+    {id:1842,ruta:'R-03',tec:'Carlos Mamani',reg:'20/10/2026 08:05',ent:'',st:'Pendiente',obs:'Reposición por alta demanda de la ruta',l:[['tm',5000],['chip',215],['t10',80],['t20',60]]},
+    {id:1839,ruta:'R-02',tec:'María Fernanda Quispe Mamani',reg:'20/10/2026 07:50',ent:'',st:'Observado',obs:'Pido más chips, se acabaron el sábado.',nota:'Los chips no coinciden con el cuadre del lunes. Confirmar con la técnica antes de aprobar.',by:'Josué Cabrera',l:[['chip',1215],['t10',70]]},
+    {id:1836,ruta:'R-04',tec:'Lucía Flores',reg:'20/10/2026 07:20',ent:'',st:'Rechazado',obs:'Necesito saldo para el feriado.',nota:'Supera el tope diario de la ruta (Bs 6.000). Volver a pedir en dos tandas.',by:'Josué Cabrera',l:[['tm',8000]]},
+    {id:1831,ruta:'R-05',tec:'Diego Choque',reg:'19/10/2026 16:20',ent:'20/10/2026',st:'Aprobado',obs:'Pedido regular de la semana.',by:'Josué Cabrera',l:[['chip',80],['t20',50],['t50',20]]},
+    {id:1822,ruta:'R-02',tec:'María Fernanda Quispe Mamani',reg:'19/10/2026 11:48',ent:'20/10/2026',st:'Modificado',obs:'Necesito chips y T10.',nota:'Se ajustó la cantidad de chips por disponibilidad.',by:'Josué Cabrera',l:[['chip',60],['t10',70]]},
+    {id:1817,ruta:'R-04',tec:'Lucía Flores',reg:'18/10/2026 15:10',ent:'19/10/2026',st:'Confirmado',obs:'Entrega confirmada por la técnica.',by:'Josué Cabrera',l:[['tm',2000],['t50',30]]},
+    {id:1809,ruta:'R-07',tec:'Rodrigo Vargas',reg:'17/10/2026 10:02',ent:'18/10/2026',st:'Confirmado',obs:'Entrega confirmada por el técnico.',by:'Josué Cabrera',l:[['chip',120],['t10',60],['t20',37]]}
+  ];
+  var DIAS=['dom','lun','mar','mié','jue','vie','sáb'],MESES=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  var st={tab:'pendientes',ruta:'',q:'',id:'',sel:1842,edit:false,pre:null};
+  function lines(o){return o.l.map(function(x){var p=P[x[0]];return {k:x[0],n:p[0],u:p[1],q:x[1],t:p[1]*x[1]}})}
+  function units(o){return o.l.reduce(function(a,x){return a+(x[0]==='tm'?0:x[1])},0)}
+  function total(o){return lines(o).reduce(function(a,x){return a+x.t},0)}
+  function cls(s){return {Aprobado:'approved',Modificado:'modified',Confirmado:'confirmed',Observado:'observed',Rechazado:'rejected'}[s]||'pending'}
+  function waiting(o){return o.st==='Pendiente'||o.st==='Observado'}
+  function pend(r){return orders.filter(function(o){return waiting(o)&&(!r||o.ruta===r)}).length}
+  function stt(s){return '<span class="stt stt--'+cls(s)+'"><i></i>'+s+'</span>'}
+  function shelf(r,c){return '<span class="shelf'+(c?' '+c:'')+'">'+r+'</span>'}
+  function dt(s){return s||'—'}
+  function rel(o){
+    var m=o.reg.match(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+)/); if(!m)return o.reg;
+    var mins=Math.round((new Date(2026,9,20,10,0)-new Date(+m[3],+m[2]-1,+m[1],+m[4],+m[5]))/60000);
+    if(mins<60)return 'hace '+Math.max(mins,1)+' min';
+    if(mins<1440)return 'hace '+Math.floor(mins/60)+' h';
+    var d=Math.floor(mins/1440); return d===1?'ayer':'hace '+d+' d';
+  }
+
+  function renderRoutes(){
+    var q=st.q.toLowerCase();
+    var html=routes.filter(function(r){return !q||(r[0]+' '+r[1]).toLowerCase().indexOf(q)>-1}).map(function(r){
+      var n=pend(r[0]);
+      return '<button type="button" data-r="'+r[0]+'" class="'+(st.ruta===r[0]?'active':'')+'">'+shelf(r[0])+'<div><small>'+r[1]+'</small></div>'+(n?'<b>'+n+'</b>':'')+'</button>';
+    }).join('');
+    $('#route-list').innerHTML=html||'<div class="orders-message">Sin resultados.</div>';
+    $('#route-all').classList.toggle('active',!st.ruta);
+    var t=pend('');
+    $('#route-all-count').textContent=t; $('#mod-pend').textContent=t; $('#tab-pend').textContent=t;
+    $$('#route-list>button').forEach(function(b){b.addEventListener('click',function(){st.ruta=b.dataset.r;st.tab='pendientes';render()})});
+  }
+  function filtered(){
+    return orders.filter(function(o){
+      if(st.ruta&&o.ruta!==st.ruta)return false;
+      if(st.id&&String(o.id).indexOf(st.id)<0)return false;
+      if(st.tab==='pendientes')return waiting(o);
+      if(st.tab==='confirmados')return o.st==='Confirmado';
+      return true;
+    });
+  }
+  function selectOrder(id){
+    st.sel=id;st.edit=false;renderOrders();renderDetail();
+    if(window.innerWidth<=900)$('#detail').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function renderOrders(){
+    var list=filtered(), r=routes.filter(function(x){return x[0]===st.ruta})[0], n=pend('');
+    if(r){$('#orders-title').textContent='Ruta '+r[0];$('#orders-sub').textContent=r[1]+' · '+pend(r[0])+' por aprobar'}
+    else if(st.tab==='pendientes'){$('#orders-title').textContent=n+' pedidos esperan aprobación';$('#orders-sub').textContent='Despacho de hoy · lun 20 oct'}
+    else{$('#orders-title').textContent=st.tab==='confirmados'?'Pedidos confirmados':'Todos los pedidos';$('#orders-sub').textContent='Despacho de hoy · lun 20 oct'}
+    $('#btn-direct').style.display=r?'':'none';
+    $$('#tabs button').forEach(function(b){b.classList.toggle('active',b.dataset.tab===st.tab)});
+    $('#orders-body').innerHTML=list.map(function(o){
+      return '<div class="o-row'+(o.id===st.sel?' is-selected':'')+'" data-id="'+o.id+'" tabindex="0" role="button">'+
+        shelf(o.ruta)+
+        '<span class="o-main"><strong>'+o.tec+'</strong><span class="o-code"><span class="bcw">'+bars('P'+o.id)+'</span>#'+o.id+'</span></span>'+
+        '<span class="o-side">'+stt(o.st)+'<span>'+int.format(units(o))+' <span class="un">u.</span> · '+rel(o)+'</span></span></div>';
+    }).join('');
+    $('#orders-empty').style.display=list.length?'none':'block';
+    $('#orders-result').textContent=list.length+' de '+orders.length+' pedidos';
+    $$('#orders-body .o-row').forEach(function(tr){
+      tr.addEventListener('click',function(){selectOrder(+tr.dataset.id)});
+      tr.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();selectOrder(+tr.dataset.id)}});
+    });
+  }
+  function renderKpis(){
+    var w=orders.filter(waiting);
+    var un=w.reduce(function(a,o){return a+units(o)},0), bs=w.reduce(function(a,o){return a+total(o)},0);
+    var ob=orders.filter(function(o){return o.st==='Observado'}).length, ok=orders.filter(function(o){return o.st==='Aprobado'||o.st==='Modificado'}).length;
+    $('#kpis').innerHTML='<span class="mono">Bs '+int.format(bs)+'</span> por aprobar · <span class="mono">'+int.format(un)+'</span> u. · '+ok+' listos para entregar'+(ob?' · '+ob+' observado':'');
+  }
+  function renderDetail(){
+    var o=orders.filter(function(x){return x.id===st.sel})[0], d=$('#detail');
+    if(!o){d.innerHTML='<div class="orders-message">Elija un pedido de la lista.</div>';return}
+    var ls=lines(o), canAct=o.st==='Pendiente'||o.st==='Modificado'||o.st==='Observado';
+    var rows=ls.map(function(x,i){
+      var q=st.edit?'<input type="number" min="0" data-i="'+i+'" value="'+x.q+'">':int.format(x.q);
+      var calc=x.k==='tm'?(st.edit?q:'1')+' <span class="un">cuenta</span>':q+' <span class="un">u.</span> × '+fmt.format(x.u);
+      return '<div class="tk-line"><div class="n"><span>'+x.n+'</span></div><div class="tk-calc"><span>'+(x.k==='tm'?(st.edit?'<input type="number" min="0" data-i="'+i+'" value="'+x.q+'"> <span class="un">Bs</span>':'saldo'):calc)+'</span><span class="lead"></span><span class="st">'+fmt.format(x.t)+'</span></div></div>';
+    }).join('');
+    var stamp='';
+    if(o.st==='Rechazado')stamp='<div class="tk-stamp tk-stamp--bad">RECHAZADO · '+o.by+'</div>';
+    else if(o.st==='Observado')stamp='<div class="tk-stamp tk-stamp--bad">OBSERVADO · '+o.by+'</div>';
+    else if(!canAct||o.st==='Modificado')stamp='<div class="tk-stamp">'+(o.st==='Confirmado'?'CONFIRMADO · aprobó ':o.st==='Modificado'?'MODIFICADO · ':'APROBADO · ')+(o.by||'Josué Cabrera')+'</div>';
+    d.innerHTML='<div class="detail-head"><div class="dh-top"><h3>Pedido <span class="mono">#'+o.id+'</span> '+stt(o.st)+'</h3>'+
+      (canAct?'<div class="approval-controls"><label for="fecha-entrega">Entrega<input id="fecha-entrega" type="date" value="2026-10-21"></label><div>'+
+        '<button class="btn btn--ghost" id="btn-mod" type="button">'+(st.edit?'Guardar cambios':'Modificar')+' <kbd>M</kbd></button>'+
+        '<button class="btn btn--success" id="btn-apr" type="button">Aprobar pedido <kbd>A</kbd></button></div></div>':'')+
+      '</div></div>'+
+      '<div class="detail-content"><article class="ticket">'+
+        '<header class="tk-head">'+shelf(o.ruta,'shelf--lg')+'<strong>NOTA DE ENTREGA</strong><span class="tk-sub">Almacén Central · Sucursal Central</span></header>'+
+        '<hr class="tk-sep"><div class="tk-bc"><div class="bcw" data-bc="P'+o.id+'"></div><span>Nº '+o.id+'</span></div><hr class="tk-sep">'+
+        '<dl class="tk-meta"><div><dt>Técnico</dt><dd title="'+o.tec+'">'+o.tec+'</dd></div><div><dt>Registrado</dt><dd>'+o.reg+'</dd></div><div><dt>Entrega</dt><dd>'+dt(o.ent)+'</dd></div></dl>'+
+        '<hr class="tk-sep">'+rows+'<hr class="tk-sep">'+
+        '<div class="tk-tot"><span>Unidades</span><span>'+int.format(units(o))+' <span class="un">u.</span></span></div>'+
+        '<div class="tk-tot tk-tot--big"><span>TOTAL</span><span><span class="bs">Bs</span> '+fmt.format(total(o))+'</span></div>'+
+        '<hr class="tk-sep"><p class="tk-note"><b>Nota del técnico</b>'+o.obs+'</p>'+
+        (o.nota?'<p class="tk-note" style="margin-top:8px"><b>Nota de almacén</b>'+o.nota+'</p>':'')+
+        (stamp?'<hr class="tk-sep">'+stamp:'')+
+        '<hr class="tk-sep"><div class="tk-bc tk-bc--foot"><div class="bcw" data-bc="NE'+o.id+o.ruta+'"></div><span>'+o.ruta.replace('-','')+' · '+String(o.id).padStart(6,'0')+'</span></div>'+
+      '</article></div>';
+    fillBc(d);
+    if(canAct){
+      $('#btn-apr').addEventListener('click',function(){readEdit(o);o.st='Aprobado';o.ent='21/10/2026';o.by='Josué Cabrera';delete o.nota;st.edit=false;render();toast('#'+o.id+' aprobado para '+o.ruta+'.')});
+      $('#btn-mod').addEventListener('click',function(){
+        if(st.edit){readEdit(o);o.st='Modificado';st.edit=false;render();toast('#'+o.id+' modificado. Se avisó al técnico.')}
+        else{st.edit=true;renderDetail()}
+      });
+    }
+  }
+  function readEdit(o){$$('#detail input[data-i]').forEach(function(i){o.l[+i.dataset.i][1]=Math.max(0,+i.value||0)})}
+  var tt;function toast(m){$('#toast-text').textContent=m;$('#toast').classList.add('show');clearTimeout(tt);tt=setTimeout(function(){$('#toast').classList.remove('show')},3200)}
+  function render(){renderRoutes();renderKpis();renderOrders();renderDetail()}
+  function move(d){
+    var list=filtered(); if(!list.length)return;
+    var i=0; list.forEach(function(o,k){if(o.id===st.sel)i=k});
+    var n=Math.max(0,Math.min(list.length-1,i+d));
+    st.sel=list[n].id;st.edit=false;renderOrders();renderDetail();
+    var el=$('#orders-body .is-selected'); if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'});
+  }
+
+  $('#route-all').addEventListener('click',function(){st.ruta='';st.tab='pendientes';render()});
+  $('#route-search').addEventListener('input',function(e){st.q=e.target.value;renderRoutes()});
+  $('#order-search').addEventListener('input',function(e){st.id=e.target.value.replace(/\D/g,'');renderOrders()});
+  $$('#tabs button').forEach(function(b){b.addEventListener('click',function(){st.tab=b.dataset.tab;renderOrders()})});
+  $('#btn-direct').addEventListener('click',function(){toast('Entrega directa: elija productos e IMEI para '+st.ruta+'.')});
+
+  /* --- barra de comandos --- */
+  $('#cmd-input').addEventListener('input',function(e){
+    var t=e.target.value.trim().toLowerCase();
+    if(/^#?\d+$/.test(t)){st.id=t.replace('#','');st.ruta=''}
+    else{
+      st.id='';
+      var r=t?routes.filter(function(x){return (x[0]+' '+x[1]).toLowerCase().indexOf(t)>-1})[0]:null;
+      st.ruta=r?r[0]:'';
+    }
+    if(t&&st.pre===null){st.pre=st.tab;st.tab='todos'}
+    if(!t&&st.pre!==null){st.tab=st.pre;st.pre=null}
+    render();
+  });
+
+  /* --- atajos de teclado --- */
+  document.addEventListener('keydown',function(e){
+    var v=$('.view.is-active'); if(!v)return;
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();var c=$('.cmd input',v);if(c)c.focus();return}
+    var tag=(e.target&&e.target.tagName)||'';
+    if(e.key==='Escape'&&/INPUT|SELECT|TEXTAREA/.test(tag)){e.target.blur();return}
+    if(/INPUT|SELECT|TEXTAREA/.test(tag)&&!(v.id==='view-login'&&e.target.type==='radio'))return;
+    if(e.metaKey||e.ctrlKey||e.altKey)return;
+    var k=e.key.toLowerCase();
+    if(v.id==='view-login'){
+      var rs=$$('input[name="lg-role"]'), n=parseInt(e.key,10);
+      if(n>=1&&n<=rs.length){rs[n-1].checked=true;rs[n-1].focus();updateLabel();e.preventDefault()}
+    }else if(v.id==='view-almacen'){
+      if(k==='a'&&$('#btn-apr')){e.preventDefault();$('#btn-apr').click()}
+      else if(k==='m'&&$('#btn-mod')){e.preventDefault();$('#btn-mod').click()}
+      else if(k==='j'||k==='arrowdown'){e.preventDefault();move(1)}
+      else if(k==='k'||k==='arrowup'){e.preventDefault();move(-1)}
+    }
+  });
+  fillBc(document);
+  updateLabel();
+  render();
+})();
+</script>
+</body>
+</html>

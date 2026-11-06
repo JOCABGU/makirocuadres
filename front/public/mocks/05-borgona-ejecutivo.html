@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acceso General · Informe membretado</title>
+<!-- THEME:FONTS -->
+<link id="theme-fonts" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Figtree:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap">
+<!-- THEME:TOKENS -->
+<style id="theme">
+:root{
+  --font-body:'Figtree',system-ui,sans-serif;
+  --font-display:'Fraunces',Georgia,'Times New Roman',serif;
+  --font-mono:'Fira Code',ui-monospace,Consolas,monospace;
+  --display-weight:600;
+  --display-tracking:-.012em;
+
+  /* papel membretado: neutros calidos, el borgona solo marca (membrete, cifras, accion principal) */
+  --bg:#FAF7F2;
+  --surface:#FFFEFC;
+  --surface-alt:#F3EDE6;
+  --border:#E4DAD2;
+  --border-strong:#C7B7AF;
+  --text:#231216;
+  --text-muted:#5F4B4F;
+  --text-soft:#94807F;
+
+  --brand:#4A1426;
+  --brand-contrast:#ffffff;
+  --accent:#8C2F45;
+  --accent-soft:#F4E9E6;
+
+  /* estado (regla): pendiente = tinta neutra · aprobado/confirmado = verde · modificado/observado = ocre · rechazado = rojo */
+  --success:#2f7d5b;
+  --warning:#9a6216;
+  --danger:#a3262e;
+
+  --radius:3px;
+}
+</style>
+<!-- end tokens -->
+<style id="base">
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-width:320px;min-height:100vh;font-family:var(--font-body);font-size:14px;color:var(--text);background:var(--bg);font-synthesis:none;overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3,p,dl,dd,ul,ol,fieldset{margin:0}
+fieldset{padding:0;border:0;min-width:0}
+ul,ol{padding:0;list-style:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--font-mono);font-size:.92em}
+.num{font-variant-numeric:tabular-nums lining-nums}
+.unit{color:var(--text-soft);font-size:.86em;font-weight:400}
+
+/* ===== marca ===== */
+.brand-logo{display:block;width:40px;height:32px;flex:0 0 auto;color:var(--brand)}
+.wordmark{display:inline-flex;align-items:baseline;gap:.28em;font-family:var(--font-display);font-size:1.45rem;line-height:1;color:var(--brand);white-space:nowrap}
+.wordmark b{font-weight:600;letter-spacing:.015em;font-variation-settings:"opsz" 144}
+.wordmark i{font-weight:400;font-style:italic;color:var(--accent);letter-spacing:-.005em;font-variation-settings:"opsz" 144}
+.wordmark--lg{font-size:2.5rem}
+
+/* ===== vistas ===== */
+.view{display:none}
+.view.is-active{display:block}
+.view-switch{position:fixed;z-index:500;right:14px;bottom:14px;display:flex;gap:0;border:1px solid var(--brand);border-radius:var(--radius);background:var(--surface);font-family:var(--font-body)}
+.view-switch button{padding:6px 12px;border:0;border-right:1px solid var(--border);color:var(--brand);background:transparent;font-size:.75rem;font-weight:600}
+.view-switch button:last-child{border-right:0}
+.view-switch button.is-active{color:var(--brand-contrast);background:var(--brand)}
+
+/* ===== pagina membretada: linea borgona fina a la izquierda ===== */
+.page{position:relative;min-height:100vh;background:var(--bg)}
+.page::before{content:"";position:absolute;z-index:0;top:0;bottom:0;left:56px;width:1px;background:var(--brand)}
+.margin-mark{position:absolute;z-index:1;top:22px;left:56px;transform:translateX(-50%);padding:6px 0;background:var(--bg)}
+.page-inner{position:relative;z-index:1;max-width:1240px;margin-left:96px;padding:0 48px 0 0}
+.letterhead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;padding:26px 0 14px;border-bottom:1px solid var(--border-strong)}
+.letterhead .tagline{margin-top:7px;color:var(--text-soft);font-family:var(--font-display);font-size:.875rem;font-style:italic}
+.lh-right{display:flex;align-items:baseline;gap:18px;color:var(--text-muted);font-size:.875rem;text-align:right}
+.lh-right strong{color:var(--text);font-weight:600}
+.link-btn{padding:0;border:0;background:none;color:var(--accent);font-size:.875rem;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+.link-btn:hover{color:var(--brand)}
+.doc-foot{padding:28px 0 26px;color:var(--text-soft);font-size:.75rem;border-top:1px solid var(--border)}
+
+/* ===== indice de capitulos (navegacion) ===== */
+.report{display:grid;grid-template-columns:216px minmax(0,1fr);gap:56px;padding:34px 0 40px}
+.index-title{margin-bottom:10px;color:var(--text-soft);font-family:var(--font-display);font-size:.875rem;font-style:italic}
+.chapter{display:grid;grid-template-columns:30px minmax(0,1fr) auto;align-items:baseline;width:100%;padding:7px 0 7px 10px;border:0;border-left:1px solid var(--border);color:var(--text-muted);background:transparent;font-size:.875rem;text-align:left}
+.chapter i{color:var(--text-soft);font-family:var(--font-display);font-size:.875rem}
+.chapter:hover{color:var(--brand)}
+.chapter.active{margin-left:-1px;border-left:2px solid var(--brand);color:var(--brand);font-weight:600}
+.chapter.active i{color:var(--accent)}
+.chapter b{color:var(--accent);font-family:var(--font-display);font-size:.875rem;font-weight:600}
+.index-note{margin-top:22px;color:var(--text-soft);font-family:var(--font-display);font-size:.8125rem;font-style:italic;line-height:1.5}
+
+/* ===== cuerpo del informe ===== */
+.doc{min-width:0}
+.doc h1{font:var(--display-weight) 2.5rem/1.08 var(--font-display);letter-spacing:var(--display-tracking);font-variation-settings:"opsz" 144;color:var(--text)}
+.doc .dateline{margin-top:8px;color:var(--text-soft);font-family:var(--font-display);font-style:italic;font-size:1rem}
+.lede-row{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:48px;align-items:start;margin-top:26px}
+.lede{max-width:34em;font-family:var(--font-display);font-size:1.4rem;line-height:1.5;font-weight:400;font-variation-settings:"opsz" 36;font-variant-numeric:oldstyle-nums proportional-nums;color:var(--text)}
+.lede b{color:var(--brand);font-weight:600}
+.lede em{color:var(--text-muted)}
+.chart{padding-top:6px;border-top:1px solid var(--brand)}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart svg text{font-family:var(--font-body);font-size:11px;fill:var(--text-muted);font-variant-numeric:tabular-nums}
+.chart svg text.v{fill:var(--text);font-weight:600}
+.chart figcaption{margin-top:8px;color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:.8125rem;line-height:1.45}
+.chart figcaption b{color:var(--brand);font-style:normal;font-weight:600}
+.chart figure,.chart{margin:0}
+
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-top:46px;padding-bottom:10px;border-bottom:1px solid var(--text)}
+.section-head h2{font:var(--display-weight) 1.25rem/1.2 var(--font-display);font-variation-settings:"opsz" 72;letter-spacing:-.005em}
+.section-head h2 span{margin-left:10px;color:var(--text-soft);font-size:.875rem;font-style:italic;font-weight:400}
+.section-head .count{color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:.875rem;white-space:nowrap}
+.btn{font-family:var(--font-body);font-style:normal;display:inline-flex;align-items:center;justify-content:center;min-height:36px;padding:0 18px;border:1px solid var(--brand);border-radius:var(--radius);color:var(--brand-contrast);background:var(--brand);font-size:.875rem;font-weight:600;transition:background .15s,color .15s}
+.btn:hover{background:var(--accent);border-color:var(--accent)}
+.btn--ghost{color:var(--brand);background:transparent}
+.btn--ghost:hover{color:var(--brand-contrast)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn--sm{min-height:30px;padding:0 12px;font-size:.8125rem}
+
+.toolbar{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:6px 0 0}
+.tabs{display:flex;gap:22px}
+.tabs button{padding:12px 0 9px;border:0;border-bottom:2px solid transparent;color:var(--text-muted);background:transparent;font-size:.875rem}
+.tabs button:hover{color:var(--brand)}
+.tabs button.active{border-bottom-color:var(--brand);color:var(--brand);font-weight:600}
+.tabs button b{margin-left:5px;color:var(--accent);font-family:var(--font-display);font-weight:600}
+.uline{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-strong)}
+.uline:focus-within{border-bottom-color:var(--brand)}
+.uline span{color:var(--text-soft);font-family:var(--font-display);font-style:italic;font-size:.875rem}
+.uline input{min-width:0;width:170px;height:32px;padding:0;border:0;outline:0;background:transparent;font-size:.875rem}
+.uline input::placeholder{color:var(--text-soft)}
+
+/* ===== tablas de informe ===== */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums lining-nums}
+th{padding:10px 14px 9px;color:var(--text-soft);font-size:.75rem;font-weight:500;text-align:left;white-space:nowrap;border-bottom:1px solid var(--border-strong)}
+td{padding:0 14px;height:50px;border-bottom:1px solid var(--border);color:var(--text);font-size:.875rem;vertical-align:middle}
+th:first-child,td:first-child{padding-left:12px}
+.number{text-align:right}
+sup{margin-left:2px;color:var(--accent);font-family:var(--font-display);font-size:.72em;font-weight:600;line-height:0}
+.orders-table tbody tr{cursor:pointer;transition:background .12s}
+.orders-table tbody tr:hover{background:var(--surface-alt)}
+.orders-table tbody tr.is-selected{background:var(--accent-soft)}
+.orders-table tbody tr.is-selected td:first-child{box-shadow:inset 3px 0 0 var(--brand)}
+.orders-table .oid{font-family:var(--font-display);font-size:1rem;font-weight:600;color:var(--brand)}
+.orders-table .rt{font-family:var(--font-mono);font-size:.78rem;color:var(--text-muted)}
+.orders-table .who{display:block;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orders-table td small{display:block;margin-top:1px;color:var(--text-soft);font-size:.75rem}
+.dash{color:var(--text-soft)}
+tfoot td{border-bottom:0;border-top:1px solid var(--text);font-weight:600;height:46px}
+.st{font-family:var(--font-display);font-style:italic;font-size:.9375rem;white-space:nowrap;color:var(--text-muted)}
+.st i{margin-right:5px;font-style:normal;font-family:var(--font-body);font-weight:700}
+.st--approved,.st--confirmed{color:var(--success)}
+.st--modified,.st--flagged{color:var(--warning)}
+.st--rejected{color:var(--danger)}
+.st--confirmed{color:var(--text-muted)}
+.st--confirmed i{color:var(--success)}
+.orders-message{padding:30px 14px;color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:1rem}
+.orders-result-count{padding:10px 14px 0;color:var(--text-soft);font-size:.75rem;text-align:right}
+.footnotes{margin-top:14px;padding:12px 14px 0;border-top:1px solid var(--border);color:var(--text-muted);font-family:var(--font-display);font-size:.875rem;line-height:1.5}
+.footnotes li{display:flex;gap:8px;margin-bottom:3px}
+.footnotes li>span:first-child{flex:0 0 12px;color:var(--accent);font-weight:600}
+.footnotes b{color:var(--text);font-weight:600;font-style:normal}
+.footnotes em{color:var(--text-muted)}
+
+/* ===== pedido seleccionado ===== */
+.detail-section{margin-top:44px}
+.detail-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding-bottom:6px}
+.detail-head h3{font:var(--display-weight) 1.75rem/1.15 var(--font-display);font-variation-settings:"opsz" 96;letter-spacing:var(--display-tracking)}
+.detail-meta{margin:2px 0 16px;color:var(--text-muted);font-size:.875rem}
+.detail-meta strong{color:var(--text);font-weight:600}
+.detail-table{overflow-x:auto;border-top:1px solid var(--text);font-variant-numeric:tabular-nums lining-nums}
+.detail-row{display:grid;grid-template-columns:minmax(150px,1.4fr) 110px 100px 90px 120px;gap:10px;min-width:580px;height:46px;padding:0 14px 0 12px;border-bottom:1px solid var(--border);align-items:center;font-size:.875rem}
+.detail-row--head{height:38px;color:var(--text-soft);font-size:.75rem;border-bottom:1px solid var(--border-strong)}
+.detail-row>span:nth-child(2),.detail-row>span:nth-child(3),.detail-row>span:nth-child(5){text-align:right}
+.detail-row input{width:84px;height:30px;padding:0 4px;border:0;border-bottom:1px solid var(--brand);background:var(--accent-soft);font:600 .875rem var(--font-body);text-align:right;font-variant-numeric:tabular-nums}
+.detail-row input:focus{outline:0;background:var(--surface-alt)}
+.detail-row--total{border-bottom:0;border-top:1px solid var(--text);font-weight:600}
+.detail-note{display:flex;gap:8px;margin-top:16px;color:var(--text-muted);font-family:var(--font-display);font-size:1rem;line-height:1.5}
+.detail-note>span:first-child{color:var(--accent);font-weight:600}
+.detail-note b{color:var(--text);font-style:normal}
+.approval-controls{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:22px;padding-top:18px;border-top:1px solid var(--border)}
+.approval-controls label{display:flex;flex-direction:column;gap:4px;color:var(--text-soft);font-family:var(--font-display);font-style:italic;font-size:.875rem}
+.approval-controls input{height:34px;padding:0 2px;border:0;border-bottom:1px solid var(--border-strong);background:transparent;color:var(--text);font:500 .9375rem var(--font-body)}
+.approval-controls input:focus{outline:0;border-bottom-color:var(--brand)}
+.approval-controls>div{display:flex;gap:10px}
+.approved-info{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:1rem}
+.approved-info strong{color:var(--success);font-weight:600}
+.toast{position:fixed;z-index:300;top:22px;right:22px;display:none;width:min(340px,calc(100vw - 28px));padding:13px 16px;border-left:3px solid var(--brand);border-radius:var(--radius);background:var(--surface);box-shadow:0 0 0 1px var(--border-strong);color:var(--text)}
+.toast.show{display:block}
+.toast span{display:block;color:var(--text-soft);font-family:var(--font-display);font-style:italic;font-size:.8125rem}
+.toast strong{display:block;margin-top:2px;font-size:.875rem;font-weight:600}
+
+/* ===== almacen: rutas en el indice ===== */
+.routes-block{margin-top:30px}
+.route-search{margin-bottom:8px}
+.route-search input{width:100%}
+.route-row{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:6px;align-items:baseline;width:100%;padding:6px 0 6px 10px;border:0;border-left:1px solid var(--border);color:var(--text-muted);background:transparent;font-size:.8125rem;text-align:left}
+.route-row .rc{font-family:var(--font-mono);font-size:.7rem}
+.route-row .rn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.route-row b{color:var(--accent);font-family:var(--font-display);font-size:.875rem}
+.route-row:hover{color:var(--brand)}
+.route-row.active{margin-left:-1px;border-left:2px solid var(--brand);color:var(--brand);font-weight:600}
+
+/* ===== tecnico ===== */
+.sectabs{display:flex;gap:24px;margin-top:40px;border-bottom:1px solid var(--text)}
+.sectabs button{padding:0 0 10px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--text-muted);background:transparent;font-size:.875rem}
+.sectabs button:hover{color:var(--brand)}
+.sectabs button.active{border-bottom-color:var(--brand);color:var(--brand);font-weight:600}
+.balance-actions{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:16px 0 4px;color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:.9375rem}
+.balance-table td{height:52px}
+.balance-table td:nth-child(1){font-weight:600}
+.balance-table .type{color:var(--text-muted)}
+.balance-table .amount{font-weight:600}
+
+/* ===== login: carta de presentacion ===== */
+.letter{max-width:660px;padding:56px 0 24px}
+.letter .when{margin-bottom:34px;color:var(--text-soft);font-family:var(--font-display);font-style:italic;font-size:.9375rem}
+.letter .salutation{color:var(--text-muted);font-family:var(--font-display);font-size:1.25rem;line-height:1.5;font-variation-settings:"opsz" 36}
+.letter h1{margin-top:22px;font:var(--display-weight) 2.5rem/1.1 var(--font-display);font-variation-settings:"opsz" 144;letter-spacing:var(--display-tracking)}
+.letter .lead{margin-top:10px;color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:1.0625rem}
+.login-roles{margin-top:26px;border-top:1px solid var(--text)}
+.login-role{position:relative;display:block;margin:0;cursor:pointer}
+.login-role input{position:absolute;opacity:0;pointer-events:none}
+.login-role>span{display:flex;align-items:baseline;gap:12px;padding:15px 4px 14px 14px;border-bottom:1px solid var(--border);transition:background .12s}
+.login-role u{width:34px;flex:0 0 auto;color:var(--text-soft);font-family:var(--font-display);font-style:italic;text-decoration:none;font-size:1.0625rem}
+.login-role b{color:var(--text);font:var(--display-weight) 1.5rem/1.1 var(--font-display);font-variation-settings:"opsz" 72;letter-spacing:-.005em}
+.login-role em{flex:1;min-width:20px;align-self:flex-end;margin:0 4px 5px;border-bottom:1px dotted var(--border-strong)}
+.login-role small{color:var(--text-muted);font-size:.875rem;font-weight:400;text-align:right}
+.login-role:hover>span{background:var(--surface-alt)}
+.login-role input:checked+span{background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--brand)}
+.login-role input:checked+span b{color:var(--brand)}
+.login-role input:checked+span u{color:var(--accent);font-weight:600}
+.login-role input:checked+span u::after{content:" \2192"}
+.login-role input:focus-visible+span{outline:2px solid var(--accent);outline-offset:-2px}
+.login-branch{display:flex;align-items:baseline;gap:16px;margin-top:28px}
+.login-branch label{color:var(--text-muted);font-family:var(--font-display);font-style:italic;font-size:1.0625rem}
+.login-branch .field{position:relative;flex:1;max-width:280px;border-bottom:1px solid var(--border-strong)}
+.login-branch .field:focus-within{border-bottom-color:var(--brand)}
+.login-branch select{width:100%;height:36px;padding:0 26px 0 0;border:0;outline:0;appearance:none;-webkit-appearance:none;background:transparent;font-size:1rem;font-weight:600;cursor:pointer}
+.login-branch select option{background:var(--surface);color:var(--text)}
+.login-branch .chev{position:absolute;right:2px;top:13px;width:11px;height:11px;fill:none;stroke:var(--text-soft);stroke-width:2;pointer-events:none}
+.sign-row{display:flex;align-items:center;gap:20px;margin-top:34px}
+.sign-row .btn{min-height:44px;padding:0 28px;font-size:1rem}
+.sign-row span{color:var(--text-soft);font-family:var(--font-display);font-style:italic;font-size:.9375rem}
+
+/* ===== responsive ===== */
+@media(max-width:1100px){
+  .lede-row{grid-template-columns:1fr;gap:26px}
+  .chart{max-width:340px}
+}
+@media(max-width:900px){
+  .page::before{left:22px}
+  .margin-mark{left:22px;top:16px}
+  .margin-mark .brand-logo{width:28px;height:22px}
+  .page-inner{margin-left:44px;padding-right:18px}
+  .letterhead{flex-direction:column;align-items:flex-start;gap:12px;padding-top:20px}
+  .lh-right{text-align:left;flex-wrap:wrap;gap:6px 14px}
+  .report{grid-template-columns:1fr;gap:26px;padding-top:24px}
+  .index{display:flex;flex-wrap:wrap;gap:0 14px;align-items:baseline}
+  .index-title{width:100%}
+  .chapter{width:auto;padding:5px 0;border-left:0;border-bottom:2px solid transparent}
+  .chapter.active{margin-left:0;border-left:0;border-bottom-color:var(--brand)}
+  .chapter i{display:none}
+  .chapter{grid-template-columns:auto auto;gap:5px}
+  .routes-block{width:100%;margin-top:14px}
+  .route-list{display:flex;gap:2px 14px;overflow-x:auto;padding-bottom:4px}
+  .route-row{width:auto;flex:0 0 auto;grid-template-columns:auto auto;border-left:0;border-bottom:2px solid transparent;padding:4px 0}
+  .route-row .rn{display:none}
+  .route-row.active{margin-left:0;border-left:0;border-bottom-color:var(--brand)}
+  .index-note{display:none}
+  .doc h1,.letter h1{font-size:2rem}
+  .lede{font-size:1.2rem}
+}
+@media(max-width:580px){
+  .wordmark--lg{font-size:2rem}
+  .letter{padding-top:34px}
+  .login-role small{display:none}
+  .login-role b{font-size:1.25rem}
+  .login-branch{flex-direction:column;gap:2px;align-items:stretch}
+  .login-branch .field{max-width:none}
+  .sign-row{flex-direction:column;align-items:stretch;gap:12px}
+  .section-head{flex-wrap:wrap}
+  .section-head h2 span{display:block;margin:2px 0 0}
+  .view-switch{right:8px;bottom:8px}
+}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<!-- THEME:MARK -->
+<svg style="display:none" aria-hidden="true"><symbol id="brand-mark" viewBox="0 0 40 32"><rect x="4.75" y="2.75" width="30.5" height="26.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M13 25 20 7l7 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="miter"/><path d="M4 19.5h32" stroke="currentColor" stroke-width="1"/></symbol></svg>
+
+<!-- ========== LOGIN ========== -->
+<div class="view is-active" id="view-login">
+  <main class="page">
+    <div class="margin-mark"><svg class="brand-logo" aria-hidden="true"><use href="#brand-mark"/></svg></div>
+    <div class="page-inner">
+      <header class="letterhead">
+        <div>
+          <span class="wordmark wordmark--lg"><b>Acceso</b><i>General</i></span>
+          <p class="tagline">Distribuidora de chips, tarjetas y saldo Tigo Money</p>
+        </div>
+        <div class="lh-right"><span>Almacén central · Rutas técnicas</span></div>
+      </header>
+      <section class="letter">
+        <p class="when">Martes 20 de octubre de 2026</p>
+        <p class="salutation">Estimado equipo: bienvenidos a la oficina de control de Acceso General.</p>
+        <h1>¿Con qué perfil ingresa hoy?</h1>
+        <form id="login-form" novalidate>
+          <fieldset class="login-roles" role="radiogroup" aria-label="Perfil de acceso">
+            <label class="login-role"><input type="radio" name="lg-role" value="almacen" checked><span><u>I.</u><b>Almacén</b><em></em><small>Pedidos, cuadres y cierre</small></span></label>
+            <label class="login-role"><input type="radio" name="lg-role" value="tecnico"><span><u>II.</u><b>Técnico de ruta</b><em></em><small>Saldo, pedidos y cuadre</small></span></label>
+            <label class="login-role"><input type="radio" name="lg-role" value="cont-depositos"><span><u>III.</u><b>Contabilidad</b><em></em><small>Control de depósitos</small></span></label>
+            <label class="login-role"><input type="radio" name="lg-role" value="sis-reinicio"><span><u>IV.</u><b>Sistemas</b><em></em><small>Usuarios y contraseñas</small></span></label>
+          </fieldset>
+          <div class="login-branch">
+            <label for="lg-branch">Sucursal</label>
+            <div class="field"><select id="lg-branch"><option value="">Seleccione…</option><option>Central</option><option>Norte</option><option>Sur</option><option>El Alto</option></select><svg class="chev" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          </div>
+          <div class="sign-row"><button class="btn" type="submit">Ingresar</button><span>Su sesión queda a su nombre.</span></div>
+        </form>
+      </section>
+      <footer class="doc-foot">Versión 4.2 · Soporte: interno 214</footer>
+    </div>
+  </main>
+</div>
+
+<!-- ========== ALMACEN ========== -->
+<div class="view" id="view-almacen">
+  <main class="page">
+    <div class="margin-mark"><svg class="brand-logo" aria-hidden="true"><use href="#brand-mark"/></svg></div>
+    <div class="page-inner">
+      <header class="letterhead">
+        <div><span class="wordmark"><b>Acceso</b><i>General</i></span><p class="tagline">Almacén Central · Despacho</p></div>
+        <div class="lh-right topbar-user"><span>mar 20 oct 2026, 09:50</span><span><strong>Josué Cabrera</strong></span><button class="link-btn logout" type="button">Cerrar sesión</button></div>
+      </header>
+
+      <div class="report">
+        <nav class="index" aria-label="Capítulos de almacén">
+          <p class="index-title">Índice</p>
+          <button class="chapter active" type="button"><i>I.</i><span>Pedidos</span><b id="mod-pend">0</b></button>
+          <button class="chapter" type="button"><i>II.</i><span>Cuadres</span><b></b></button>
+          <button class="chapter" type="button"><i>III.</i><span>Cierre de almacén</span><b></b></button>
+          <button class="chapter" type="button"><i>IV.</i><span>Dispositivos</span><b></b></button>
+          <button class="chapter" type="button"><i>V.</i><span>Estadísticas</span><b></b></button>
+          <button class="chapter" type="button"><i>VI.</i><span>Tutorial</span><b></b></button>
+          <div class="routes-block">
+            <p class="index-title">Rutas <span id="route-all-count" style="display:none">0</span></p>
+            <div class="uline route-search"><span>buscar</span><input id="route-search" type="search" placeholder="ruta o técnico" aria-label="Buscar ruta o técnico"></div>
+            <button class="route-row active" id="route-all" type="button"><span class="rc">TODAS</span><span class="rn">Todas las rutas</span><b></b></button>
+            <div class="route-list" id="route-list"></div>
+          </div>
+          <p class="index-note">Corte de pedidos: mar 20 oct, 09:42.<br>Cuadre del lunes 19 cerrado.</p>
+        </nav>
+
+        <article class="doc">
+          <h1>Despacho de hoy</h1>
+          <p class="dateline">Martes 20 de octubre de 2026 · Almacén Central</p>
+          <div class="lede-row">
+            <p class="lede" id="summary"></p>
+            <figure class="chart" id="chart"></figure>
+          </div>
+
+          <div class="section-head">
+            <h2 id="orders-title">Pedidos pendientes de aprobación</h2>
+            <div style="display:flex;align-items:baseline;gap:16px"><span class="count" id="orders-count">0 pedido(s)</span><button class="btn btn--sm" id="btn-direct" type="button" style="display:none">Entrega directa</button></div>
+          </div>
+          <p class="detail-meta" id="orders-sub" style="margin:8px 0 0;min-height:0"></p>
+          <div class="toolbar">
+            <div class="tabs" id="tabs">
+              <button class="active" data-tab="pendientes" type="button">Pendientes<b id="tab-pend">0</b></button>
+              <button data-tab="todos" type="button">Todos</button>
+              <button data-tab="confirmados" type="button">Confirmados</button>
+            </div>
+            <div class="uline"><span>nº</span><input id="order-search" type="search" inputmode="numeric" placeholder="buscar pedido" aria-label="Buscar ID de pedido"></div>
+          </div>
+          <div class="table-wrap">
+            <table class="orders-table">
+              <thead><tr><th>Nº</th><th>Ruta</th><th>Técnico</th><th>Entrega</th><th class="number">Prod. · unidades</th><th class="number">Monto Bs</th><th>Estado</th></tr></thead>
+              <tbody id="orders-body"></tbody>
+            </table>
+          </div>
+          <div class="orders-message" id="orders-empty" style="display:none">Ningún pedido coincide con este filtro.</div>
+          <ol class="footnotes" id="footnotes"></ol>
+          <div class="orders-result-count" id="orders-result"></div>
+          <section class="detail-section" id="detail"></section>
+        </article>
+      </div>
+      <footer class="doc-foot">Versión 4.2 · Soporte: interno 214</footer>
+    </div>
+  </main>
+  <div class="toast" id="toast"><span>Pedido actualizado</span><strong id="toast-text"></strong></div>
+</div>
+
+<!-- ========== TECNICO ========== -->
+<div class="view" id="view-tecnico">
+  <main class="page">
+    <div class="margin-mark"><svg class="brand-logo" aria-hidden="true"><use href="#brand-mark"/></svg></div>
+    <div class="page-inner">
+      <header class="letterhead">
+        <div><span class="wordmark"><b>Acceso</b><i>General</i></span><p class="tagline">Sucursal Central · Rutas técnicas</p></div>
+        <div class="lh-right topbar-user"><span>mar 20 oct 2026, 08:05</span><span><strong>Juan Pérez</strong> · técnico</span><button class="link-btn logout" type="button">Cerrar sesión</button></div>
+      </header>
+
+      <div class="report">
+        <nav class="index" aria-label="Capítulos del técnico">
+          <p class="index-title">Índice</p>
+          <button class="chapter active" type="button"><i>I.</i><span>Resumen de ruta</span><b></b></button>
+          <button class="chapter" type="button"><i>II.</i><span>Mi cuadre</span><b></b></button>
+          <button class="chapter" type="button"><i>III.</i><span>Mi perfil</span><b></b></button>
+          <button class="chapter" type="button"><i>IV.</i><span>Tutorial</span><b></b></button>
+          <p class="index-note">Moneda: bolivianos (Bs).<br>Corte de saldo: 08:05.</p>
+        </nav>
+
+        <article class="doc">
+          <h1>Informe de saldo · RUTA-12</h1>
+          <p class="dateline">Preparado para Juan Pérez · Sucursal Central · martes 20 de octubre</p>
+          <div class="lede-row">
+            <p class="lede">Juan Pérez lleva <b>5 productos</b> en la ruta, con <b>290 unidades</b> y un valor total de <b>Bs 8.800</b>. Casi la mitad, <b>Bs 4.350</b>, es saldo Tigo Money<sup>1</sup>; en tarjetas hay 169 unidades, con una observación sobre las T50<sup>2</sup>.</p>
+            <figure class="chart" aria-label="Composición del valor de ruta">
+              <svg viewBox="0 0 270 78" role="img" aria-label="Valor de la ruta por producto">
+                <rect x="0" y="6" width="130" height="8" fill="var(--brand)"/><text x="138" y="14" class="v">Tigo Money 4.350</text>
+                <rect x="0" y="26" width="72" height="8" fill="#BBA7AA"/><text x="80" y="34">Tarjetas T20 y T50 2.400</text>
+                <rect x="0" y="46" width="36" height="8" fill="#BBA7AA"/><text x="44" y="54">Chips 1.200</text>
+                <rect x="0" y="66" width="25" height="8" fill="#BBA7AA"/><text x="33" y="74">Tarjetas T10 850</text>
+              </svg>
+              <figcaption><b>49 %</b> del valor de la ruta está en saldo electrónico, Bs.</figcaption>
+            </figure>
+          </div>
+
+          <div class="sectabs" role="tablist" aria-label="Secciones de la ruta">
+            <button class="active" type="button">Saldos</button>
+            <button type="button">Pedidos</button>
+            <button type="button">Depósitos</button>
+            <button type="button">Mi cuadre</button>
+          </div>
+          <div class="balance-actions"><span>Saldo disponible al corte de las 08:05</span><button class="btn" type="button">Hacer pedido</button></div>
+          <div class="table-wrap">
+            <table class="balance-table">
+              <thead><tr><th>Producto</th><th>Tipo</th><th class="number">Cantidad</th><th class="number">Valor Bs</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr><td>Tigo Money<sup>1</sup></td><td class="type">Saldo</td><td class="number">1 <span class="unit">cta.</span></td><td class="number amount">4.350,00</td><td><span class="st st--approved"><i>✓</i>conforme</span></td></tr>
+                <tr><td>Chip Prepago</td><td class="type">Chip</td><td class="number">120 <span class="unit">u.</span></td><td class="number amount">1.200,00</td><td><span class="st st--approved"><i>✓</i>conforme</span></td></tr>
+                <tr><td>Tarjeta T10</td><td class="type">Tarjeta</td><td class="number">85 <span class="unit">u.</span></td><td class="number amount">850,00</td><td><span class="st st--approved"><i>✓</i>conforme</span></td></tr>
+                <tr><td>Tarjeta T20</td><td class="type">Tarjeta</td><td class="number">60 <span class="unit">u.</span></td><td class="number amount">1.200,00</td><td><span class="st st--pending"><i>◦</i>por contar</span></td></tr>
+                <tr><td>Tarjeta T50<sup>2</sup></td><td class="type">Tarjeta</td><td class="number">24 <span class="unit">u.</span></td><td class="number amount">1.200,00</td><td><span class="st st--flagged"><i>※</i>observado</span></td></tr>
+              </tbody>
+              <tfoot><tr><td>Total de la ruta</td><td></td><td class="number">290 <span class="unit">u.</span></td><td class="number">8.800,00</td><td></td></tr></tfoot>
+            </table>
+          </div>
+          <ol class="footnotes">
+            <li><span>1</span><span>El saldo electrónico se lleva como una sola cuenta: la cantidad es 1 y el monto es lo disponible en la billetera de la ruta.</span></li>
+            <li><span>2</span><span>Dos de las 24 tarjetas T50 tienen el empaque dañado. Quedaron aparte, a la espera de que almacén confirme el cambio.</span></li>
+          </ol>
+        </article>
+      </div>
+      <footer class="doc-foot">Versión 4.2 · Soporte: interno 214</footer>
+    </div>
+  </main>
+</div>
+
+<div class="view-switch" role="tablist" aria-label="Cambiar vista del mock">
+  <button type="button" data-view="login" class="is-active">Login</button>
+  <button type="button" data-view="almacen">Almacén</button>
+  <button type="button" data-view="tecnico">Técnico</button>
+</div>
+
+<script>
+(function(){
+  var $=function(s,r){return (r||document).querySelector(s)};
+  var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+  var fmt=new Intl.NumberFormat('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2,useGrouping:'always'});
+  var int=new Intl.NumberFormat('es-BO',{useGrouping:'always'});
+
+  /* --- conmutador de vistas --- */
+  function show(v){
+    $$('.view').forEach(function(e){e.classList.toggle('is-active',e.id==='view-'+v)});
+    $$('.view-switch button').forEach(function(b){b.classList.toggle('is-active',b.dataset.view===v)});
+    try{history.replaceState(null,'','#'+v)}catch(e){}
+    window.scrollTo(0,0);
+  }
+  $$('.view-switch button').forEach(function(b){b.addEventListener('click',function(){show(b.dataset.view)})});
+  var h=(location.hash||'').slice(1); if(['login','almacen','tecnico'].indexOf(h)>-1) show(h);
+
+  /* --- login --- */
+  $('#login-form').addEventListener('submit',function(e){e.preventDefault();var r=$('input[name="lg-role"]:checked');var v=r?r.value:'almacen';show(document.getElementById('view-'+v)?v:'almacen')});
+  $$('.topbar-user .logout').forEach(function(b){b.addEventListener('click',function(){show('login')})});
+
+  /* --- almacen: datos --- */
+  var routes=[
+    ['RUTA-01','Juan Pérez'],['RUTA-02','María Fernanda Quispe Mamani'],['RUTA-03','Carlos Mamani'],['RUTA-04','Lucía Flores'],
+    ['RUTA-05','Diego Choque'],['RUTA-06','Ana Gutiérrez'],['RUTA-07','Rodrigo Vargas'],['RUTA-08','Paola Rojas']
+  ];
+  var P={tm:['Tigo Money',1],chip:['Chip Prepago',10],t10:['Tarjeta T10',10],t20:['Tarjeta T20',20],t50:['Tarjeta T50',50]};
+  var orders=[
+    {id:1851,ruta:'RUTA-06',tec:'Ana Gutiérrez',reg:'20/10/2026 09:42',ent:'',st:'Pendiente',obs:'Reposición semanal. Me quedan 37 T10 y las T20 casi no rotan.',l:[['t10',37],['t20',40]]},
+    {id:1848,ruta:'RUTA-08',tec:'Paola Rojas',reg:'20/10/2026 09:15',ent:'',st:'Pendiente',obs:'Abrimos puntos nuevos en la zona del mercado, necesito chips para el sábado.',l:[['chip',100],['t10',50]]},
+    {id:1845,ruta:'RUTA-01',tec:'Juan Pérez',reg:'20/10/2026 08:30',ent:'',st:'Pendiente',obs:'Saldo bajo de Tigo Money al cierre de ayer.',l:[['tm',3000],['t10',40]]},
+    {id:1842,ruta:'RUTA-03',tec:'Carlos Mamani',reg:'20/10/2026 08:05',ent:'',st:'Pendiente',obs:'Reposición por alta demanda en la ruta.',l:[['tm',5000],['chip',150],['t10',80],['t20',60]]},
+    {id:1838,ruta:'RUTA-07',tec:'Rodrigo Vargas',reg:'20/10/2026 07:50',ent:'',st:'Observado',obs:'El saldo pedido supera el tope diario de la ruta. Contabilidad debe confirmar antes de aprobar.',l:[['tm',6000],['chip',30]]},
+    {id:1831,ruta:'RUTA-05',tec:'Diego Choque',reg:'19/10/2026 16:20',ent:'20/10/2026',st:'Aprobado',obs:'Pedido regular de la semana.',by:'Josué Cabrera',l:[['chip',80],['t20',50],['t50',20]]},
+    {id:1826,ruta:'RUTA-04',tec:'Lucía Flores',reg:'19/10/2026 12:31',ent:'',st:'Rechazado',obs:'Duplicado del pedido 1817, que ya fue entregado.',by:'Josué Cabrera',l:[['tm',1215]]},
+    {id:1822,ruta:'RUTA-02',tec:'María Fernanda Quispe Mamani',reg:'19/10/2026 11:48',ent:'20/10/2026',st:'Modificado',obs:'Se ajustó la cantidad de chips por disponibilidad en almacén.',by:'Josué Cabrera',l:[['chip',60],['t10',70]]},
+    {id:1817,ruta:'RUTA-04',tec:'Lucía Flores',reg:'18/10/2026 15:10',ent:'19/10/2026',st:'Confirmado',obs:'Entrega confirmada por el técnico.',by:'Josué Cabrera',l:[['tm',2000],['t50',30]]},
+    {id:1809,ruta:'RUTA-07',tec:'Rodrigo Vargas',reg:'17/10/2026 10:02',ent:'18/10/2026',st:'Confirmado',obs:'Entrega confirmada por el técnico.',by:'Josué Cabrera',l:[['chip',215],['t10',60],['t20',40]]}
+  ];
+  var st={tab:'pendientes',ruta:'',q:'',id:'',sel:1842,edit:false};
+  function lines(o){return o.l.map(function(x){var p=P[x[0]];return {n:p[0],u:p[1],q:x[1],t:p[1]*x[1]}})}
+  function units(o){return o.l.reduce(function(a,x){return a+x[1]},0)}
+  function total(o){return lines(o).reduce(function(a,x){return a+x.t},0)}
+  var STATE={
+    'Pendiente':['pending','◦','pendiente'],
+    'Aprobado':['approved','✓','aprobado'],
+    'Modificado':['modified','≈','modificado'],
+    'Observado':['flagged','※','observado'],
+    'Rechazado':['rejected','✕','rechazado'],
+    'Confirmado':['confirmed','✓','confirmado']
+  };
+  function stat(s){var x=STATE[s]||STATE.Pendiente;return '<span class="st st--'+x[0]+'"><i>'+x[1]+'</i>'+x[2]+'</span>'}
+  function fd(s){return s?s.slice(0,2).replace(/^0/,'')+' oct'+(s.length>10?', '+s.slice(11):''):''}
+  function pend(r){return orders.filter(function(o){return o.st==='Pendiente'&&(!r||o.ruta===r)}).length}
+  function plural(n,a,b){return n===1?a:b}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+
+  function renderRoutes(){
+    var q=st.q.toLowerCase();
+    var html=routes.filter(function(r){return !q||(r[0]+' '+r[1]).toLowerCase().indexOf(q)>-1}).map(function(r){
+      var n=pend(r[0]);
+      return '<button type="button" class="route-row'+(st.ruta===r[0]?' active':'')+'" data-r="'+r[0]+'" title="'+esc(r[1])+'"><span class="rc">'+r[0]+'</span><span class="rn">'+esc(r[1])+'</span><b>'+(n||'')+'</b></button>';
+    }).join('');
+    $('#route-list').innerHTML=html||'<div class="orders-message" style="padding:10px 0;font-size:.875rem">Sin resultados.</div>';
+    $('#route-all').classList.toggle('active',!st.ruta);
+    var t=pend('');
+    $('#route-all-count').textContent=t; $('#mod-pend').textContent=t; $('#tab-pend').textContent=t;
+    $$('#route-list>button').forEach(function(b){b.addEventListener('click',function(){st.ruta=b.dataset.r;st.tab='pendientes';render()})});
+  }
+  function filtered(){
+    return orders.filter(function(o){
+      if(st.ruta&&o.ruta!==st.ruta)return false;
+      if(st.id&&String(o.id).indexOf(st.id)<0)return false;
+      if(st.tab==='pendientes')return o.st==='Pendiente';
+      if(st.tab==='confirmados')return o.st==='Confirmado';
+      return true;
+    });
+  }
+  function renderOrders(){
+    var list=filtered(), r=routes.filter(function(x){return x[0]===st.ruta})[0];
+    $('#orders-title').textContent=r?r[0]+' · pedidos':(st.tab==='pendientes'?'Pedidos pendientes de aprobación':st.tab==='confirmados'?'Pedidos confirmados':'Todos los pedidos');
+    $('#orders-sub').textContent=r?'Técnico asignado: '+r[1]:'';
+    $('#btn-direct').style.display=r?'':'none';
+    $('#orders-count').textContent=list.length+' '+plural(list.length,'pedido','pedidos');
+    $$('#tabs button').forEach(function(b){b.classList.toggle('active',b.dataset.tab===st.tab)});
+    $('#orders-body').innerHTML=list.map(function(o,i){
+      var sel=o.id===st.sel;
+      return '<tr data-id="'+o.id+'" class="'+(sel?'is-selected':'')+'" tabindex="0">'+
+        '<td><span class="oid">'+o.id+'</span><sup>'+(i+1)+'</sup></td>'+
+        '<td><span class="rt">'+o.ruta+'</span></td>'+
+        '<td><span class="who" title="'+esc(o.tec)+'">'+esc(o.tec)+'</span><small>reg. '+fd(o.reg)+'</small></td>'+
+        '<td>'+(o.ent?fd(o.ent):'<span class="dash">—</span>')+'</td>'+
+        '<td class="number">'+o.l.length+' · '+int.format(units(o))+' <span class="unit">u.</span></td>'+
+        '<td class="number">'+fmt.format(total(o))+'</td>'+
+        '<td>'+stat(o.st)+'</td></tr>';
+    }).join('');
+    $('#footnotes').innerHTML=list.map(function(o,i){return '<li><span>'+(i+1)+'</span><span><b>'+esc(o.tec.split(' ').slice(0,2).join(' '))+':</b> <em>«'+esc(o.obs)+'»</em></span></li>'}).join('');
+    $('#orders-empty').style.display=list.length?'none':'block';
+    $('#orders-result').textContent=list.length+' de '+orders.length+' pedidos';
+    $$('#orders-body tr').forEach(function(tr){
+      function pick(){st.sel=+tr.dataset.id;st.edit=false;renderOrders();renderDetail();if(window.innerWidth<=900)$('#detail').scrollIntoView({behavior:'smooth',block:'start'})}
+      tr.addEventListener('click',pick);
+      tr.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();pick()}});
+    });
+  }
+  function bs(n){return 'Bs '+int.format(Math.round(n))}
+  function renderSummary(){
+    var scope=orders.filter(function(o){return !st.ruta||o.ruta===st.ruta});
+    var pl=scope.filter(function(o){return o.st==='Pendiente'});
+    var r=routes.filter(function(x){return x[0]===st.ruta})[0];
+    var s;
+    if(!pl.length){
+      s=(r?'<b>'+r[0]+'</b> ('+esc(r[1])+') no tiene':'No hay')+' pedidos por aprobar.';
+    }else{
+      var big=pl.slice().sort(function(a,b){return total(b)-total(a)})[0];
+      var tot=pl.reduce(function(a,o){return a+total(o)},0);
+      if(r){
+        s='<b>'+r[0]+'</b> ('+esc(r[1])+') tiene <b>'+pl.length+' '+plural(pl.length,'pedido','pedidos')+'</b> por aprobar, por <b>'+bs(tot)+'</b>, con <b>'+int.format(pl.reduce(function(a,o){return a+units(o)},0))+' unidades</b>.';
+      }else{
+        s='Hay <b>'+pl.length+' '+plural(pl.length,'pedido','pedidos')+'</b> por aprobar, por un total de <b>'+bs(tot)+'</b>. '+(pl.length>1?'El más grande':'Es')+' de '+big.ruta+' ('+esc(big.tec)+'), con <b>'+int.format(units(big))+' unidades</b>.';
+      }
+    }
+    var ob=scope.filter(function(o){return o.st==='Observado'}).length, rj=scope.filter(function(o){return o.st==='Rechazado'}).length;
+    var ex=[];
+    if(ob)ex.push(ob+' '+plural(ob,'pedido observado','pedidos observados')+' ※, a la espera de contabilidad');
+    if(rj)ex.push(rj+' '+plural(rj,'rechazado','rechazados')+' ✕');
+    if(ex.length)s+=' <em>Además: '+ex.join(' y ')+'.</em>';
+    $('#summary').innerHTML=s;
+  }
+  function renderChart(){
+    var pl=orders.filter(function(o){return o.st==='Pendiente'}).map(function(o){return {r:o.ruta,u:units(o)}}).sort(function(a,b){return b.u-a.u});
+    var el=$('#chart');
+    if(!pl.length){el.innerHTML='';return}
+    var mx=pl[0].u, tot=pl.reduce(function(a,x){return a+x.u},0), W=120, rows='';
+    pl.forEach(function(x,i){
+      var y=i*20, w=Math.max(3,Math.round(x.u/mx*W));
+      rows+='<text x="0" y="'+(y+9)+'">'+x.r+'</text><rect x="62" y="'+y+'" width="'+w+'" height="8" fill="'+(i===0?'var(--brand)':'#BBA7AA')+'"/><text x="'+(62+w+6)+'" y="'+(y+9)+'" class="'+(i===0?'v':'')+'">'+int.format(x.u)+'</text>';
+    });
+    el.innerHTML='<svg viewBox="0 0 270 '+(pl.length*20)+'" role="img" aria-label="Unidades pendientes por ruta">'+rows+'</svg>'+
+      '<figcaption>Unidades por aprobar, por ruta. <b>'+pl[0].r+'</b> concentra el <b>'+Math.round(pl[0].u/tot*100)+' %</b> del total.</figcaption>';
+  }
+  function renderDetail(){
+    var o=orders.filter(function(x){return x.id===st.sel})[0], d=$('#detail');
+    if(!o){d.innerHTML='<div class="orders-message">Seleccione un pedido para ver su detalle.</div>';return}
+    var ls=lines(o), canAct=o.st==='Pendiente'||o.st==='Modificado'||o.st==='Observado';
+    var rows=ls.map(function(x,i){
+      return '<div class="detail-row"><span>'+x.n+'</span><span>'+(x.u===1?'1,00':fmt.format(x.u))+' <span class="unit">Bs</span></span><span>'+(st.edit?'<input type="number" min="0" data-i="'+i+'" value="'+x.q+'" aria-label="Cantidad de '+x.n+'">':int.format(x.q)+' <span class="unit">u.</span>')+'</span><span>'+(x.u===1?'Saldo':x.n.indexOf('Chip')>-1?'Chip':'Tarjeta')+'</span><span>'+fmt.format(x.t)+'</span></div>';
+    }).join('');
+    d.innerHTML='<div class="detail-head"><h3>Nota de entrega nº '+o.id+'</h3>'+stat(o.st)+'</div>'+
+      '<p class="detail-meta"><strong>'+o.ruta+'</strong> · '+esc(o.tec)+'<sup>1</sup> · registrado '+fd(o.reg)+' · entrega '+(o.ent?fd(o.ent):'—')+'</p>'+
+      '<div class="detail-table"><div class="detail-row detail-row--head"><span>Producto</span><span>P. unitario</span><span>Cantidad</span><span>Tipo</span><span>Subtotal Bs</span></div>'+rows+
+      '<div class="detail-row detail-row--total"><span>Total</span><span></span><span>'+int.format(units(o))+' <span class="unit">u.</span></span><span></span><span>'+fmt.format(total(o))+'</span></div></div>'+
+      '<p class="detail-note"><span>1</span><span><b>'+esc(o.tec.split(' ').slice(0,2).join(' '))+':</b> <em>«'+esc(o.obs)+'»</em></span></p>'+
+      (canAct?'<div class="approval-controls"><label for="fecha-entrega">Fecha de entrega<input id="fecha-entrega" type="date" value="2026-10-21"></label><div>'+
+        '<button class="btn btn--ghost" id="btn-mod" type="button">'+(st.edit?'Guardar cambios':'Modificar')+'</button>'+
+        '<button class="btn" id="btn-apr" type="button">Aprobar pedido</button></div></div>'
+        :'<p class="approved-info">'+(o.st==='Rechazado'?'Rechazado por ':o.st==='Confirmado'?'Confirmado por el técnico; aprobado por ':'Aprobado por ')+'<strong>'+(o.by||'Josué Cabrera')+'</strong>.</p>')+'';
+    if(canAct){
+      $('#btn-apr').addEventListener('click',function(){readEdit(o);o.st='Aprobado';o.ent='21/10/2026';o.by='Josué Cabrera';st.edit=false;render();toast('Pedido '+o.id+' aprobado para '+o.ruta+'.')});
+      $('#btn-mod').addEventListener('click',function(){
+        if(st.edit){readEdit(o);o.st='Modificado';st.edit=false;render();toast('Pedido '+o.id+' modificado. Se avisó al técnico.')}
+        else{st.edit=true;renderDetail()}
+      });
+    }
+  }
+  function readEdit(o){$$('#detail input[data-i]').forEach(function(i){o.l[+i.dataset.i][1]=Math.max(0,+i.value||0)})}
+  var tt;function toast(m){$('#toast-text').textContent=m;$('#toast').classList.add('show');clearTimeout(tt);tt=setTimeout(function(){$('#toast').classList.remove('show')},3200)}
+  function render(){renderRoutes();renderSummary();renderChart();renderOrders();renderDetail()}
+
+  $('#route-all').addEventListener('click',function(){st.ruta='';st.tab='pendientes';render()});
+  $('#route-search').addEventListener('input',function(e){st.q=e.target.value;renderRoutes()});
+  $('#order-search').addEventListener('input',function(e){st.id=e.target.value.replace(/\D/g,'');renderOrders()});
+  $$('#tabs button').forEach(function(b){b.addEventListener('click',function(){st.tab=b.dataset.tab;renderOrders()})});
+  $('#btn-direct').addEventListener('click',function(){toast('Entrega directa: seleccione productos e IMEI para '+st.ruta+'.')});
+  render();
+})();
+</script>
+</body>
+</html>

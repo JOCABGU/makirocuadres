@@ -1,0 +1,12 @@
+# LEGADO E INSEGURO: TLS 1.0 está obsoleto y Java 21 lo deshabilita por defecto.
+# Este perfil documenta la compatibilidad solicitada, pero también requiere habilitar
+# TLSv1 en la política de seguridad de la JVM y disponer de un certificado PKCS12.
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: ${TLS_KEY_STORE}
+    key-store-password: ${TLS_KEY_STORE_PASSWORD}
+    key-store-type: PKCS12
+    enabled-protocols: TLSv1
+
